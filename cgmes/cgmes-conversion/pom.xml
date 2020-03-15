@@ -68,6 +68,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-loadflow-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.gdata</artifactId>
         </dependency>
@@ -156,12 +161,6 @@
         <!-- To validate bus balances on converted Network -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-loadflow-api</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-loadflow-results-completion</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -177,6 +176,13 @@
             <artifactId>powsybl-config-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-tools</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
         </dependency>
     </dependencies>
 </project>
