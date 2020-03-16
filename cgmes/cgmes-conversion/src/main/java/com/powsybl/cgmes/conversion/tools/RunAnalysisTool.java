@@ -1,5 +1,7 @@
 package com.powsybl.cgmes.conversion.tools;
 
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
 import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
 
 import java.io.File;
@@ -31,6 +33,7 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlow.Runner;
@@ -47,6 +50,7 @@ public class RunAnalysisTool implements Tool {
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String SKIP_POSTPROC = "skip-postproc";
     private static final String OUTPUT_FILE = "output-file";
+    private static final String OUTPUT_DETAILED_FILE = "output-detailed-file";
 
     @Override
     public Command getCommand() {
@@ -82,6 +86,11 @@ public class RunAnalysisTool implements Tool {
                     .argName("FILE")
                     .required()
                     .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_DETAILED_FILE)
+                    .desc("Biggest differences output file")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 options.addOption(Option.builder().longOpt(LOADFLOW_ENGINE)
                     .desc("loadflow engine name")
                     .hasArg()
@@ -95,6 +104,8 @@ public class RunAnalysisTool implements Tool {
                 options.addOption(Option.builder().longOpt(SKIP_POSTPROC)
                     .desc("skip network importer post processors (when configured)")
                     .build());
+                options.addOption(createImportParametersFileOption());
+                options.addOption(createImportParameterOption());
                 return options;
             }
 
@@ -107,55 +118,45 @@ public class RunAnalysisTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        File file = new File("c:\\tmp\\err.txt");
-        FileOutputStream fos = new FileOutputStream(file);
-        PrintStream ps = new PrintStream(fos);
-        System.setErr(ps);
-
-        Path casesInput = context.getFileSystem().getPath(line.getOptionValue(CASES_INPUT));
-        boolean skipPostProc = line.hasOption(SKIP_POSTPROC);
-        Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
-
-        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-
-        LoadFlowParameters params = LoadFlowParameters.load();
-        if (line.hasOption(PARAMETERS_FILE)) {
-            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
-            JsonLoadFlowParameters.update(params, parametersFile);
+        String temp = System.getProperty("java.io.tmpdir");
+        if (temp == null) {
+            temp = "tmp";
         }
 
-        ComputationManager computationManager = context.getShortTimeExecutionComputationManager();
-        String name = "HELM";
-        if (line.hasOption(LOADFLOW_ENGINE)) {
-            name = line.getOptionValue(LOADFLOW_ENGINE);
-        }
-        Runner runner = LoadFlow.find(name);
+        try (FileOutputStream errFos = new FileOutputStream(new File(temp + "err.txt"))) {
+            System.setErr(new PrintStream(errFos));
 
-        try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
-            runAnalysis(runner, computationManager, casesInput, importConfig, inputParams, params, writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
+            Path casesInput = context.getFileSystem().getPath(line.getOptionValue(CASES_INPUT));
+            boolean skipPostProc = line.hasOption(SKIP_POSTPROC);
+            Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
+            Path outputDetailedFile = null;
+            if (line.hasOption(OUTPUT_DETAILED_FILE)) {
+                outputDetailedFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_DETAILED_FILE));
+            }
 
-    private void runAnalysis(Runner runner, ComputationManager computationManager, Path casesInput, ImportConfig importConfig,
-        Properties inputParams, LoadFlowParameters params, Writer writer) {
-        CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-        try (TableFormatter formatter = csvTableFormatterFactory.create(writer, "analysis results", TableFormatterConfig.load(),
-            new Column("Case"),
-            new Column("Minimum"),
-            new Column("Maximum"),
-            new Column("Average"),
-            new Column("Deviation"))) {
-            runAnalysis(runner, computationManager, casesInput, importConfig, inputParams, params, formatter);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            String name = "HELM";
+            if (line.hasOption(LOADFLOW_ENGINE)) {
+                name = line.getOptionValue(LOADFLOW_ENGINE);
+            }
+
+            ComputationManager computationManager = context.getShortTimeExecutionComputationManager();
+
+            ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
+            Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+
+            LoadFlowParameters params = LoadFlowParameters.load();
+            if (line.hasOption(PARAMETERS_FILE)) {
+                Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+                JsonLoadFlowParameters.update(params, parametersFile);
+            }
+
+            CaseAnalyzer analyzer = new CaseAnalyzer(computationManager, name, outputFile, outputDetailedFile);
+            runAnalysis(analyzer, casesInput, importConfig, inputParams, params);
         }
     }
 
-    private void runAnalysis(Runner runner, ComputationManager computationManager, Path casesInput, ImportConfig importConfig,
-        Properties inputParams, LoadFlowParameters params, TableFormatter formatter) throws IOException {
+    private void runAnalysis(CaseAnalyzer analyzer, Path casesInput, ImportConfig importConfig,
+        Properties inputParams, LoadFlowParameters params) throws IOException {
         if (Files.isDirectory(casesInput)) {
             Files.walk(casesInput).forEach(caseFile -> {
                 if (Files.isDirectory(caseFile)) {
@@ -163,56 +164,99 @@ public class RunAnalysisTool implements Tool {
                 }
                 String caseName = caseFile.toString().replace(casesInput.toString(), "");
                 try {
-                    runCaseAnalysis(runner, computationManager, caseName, caseFile, importConfig, inputParams, params, formatter);
-                } catch (CgmesModelException e) {
+                    analyzer.analyse(caseName, caseFile, importConfig, inputParams, params);
+                } catch (AssertionError | PowsyblException e) {
                     System.err.println(caseName + " -> " + e.getMessage());
                 }
             });
         }
     }
 
-    private void runCaseAnalysis(Runner runner, ComputationManager computationManager, String caseName, Path caseFile, ImportConfig importConfig,
-        Properties inputParams, LoadFlowParameters params, TableFormatter formatter) throws CgmesModelException {
-        Network n = Importers.loadNetwork(caseFile, computationManager, importConfig, inputParams);
-        if (n == null) {
-            throw new PowsyblException("Case '" + caseFile + "' not found");
+    class CaseAnalyzer {
+
+        CaseAnalyzer(ComputationManager computationManager, String name, Path outputFile, Path outputDetailedFile) throws IOException {
+            this.computationManager = computationManager;
+            runner = LoadFlow.find(name);
+
+            Writer outputWriter = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
+            CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
+            outputFormatter = csvTableFormatterFactory.create(outputWriter, "analysis results", TableFormatterConfig.load(),
+                new Column("Case"),
+                new Column("Minimum"),
+                new Column("Maximum"),
+                new Column("Average"),
+                new Column("Deviation"));
+
+            if (outputDetailedFile == null) {
+                outputDetailedFormatter = null;
+                return;
+            }
+
+            Writer outputDetailedWriter = Files.newBufferedWriter(outputDetailedFile, StandardCharsets.UTF_8);
+            outputDetailedFormatter = csvTableFormatterFactory.create(outputDetailedWriter, "detailed results", TableFormatterConfig.load(),
+                new Column("Case"),
+                new Column("Bus"),
+                new Column("Loadflow"),
+                new Column("Case"));
         }
 
-        String variant0 = n.getVariantManager().getWorkingVariantId();
-        String variant1 = LOADFLOW_VARIANT_ID;
+        public void analyse(String caseName, Path caseFile, ImportConfig importConfig, Properties inputParams, LoadFlowParameters params) {
+            Network n = Importers.loadNetwork(caseFile, computationManager, importConfig, inputParams);
+            if (n == null) {
+                throw new PowsyblException("Case '" + caseFile + "' not found");
+            }
 
-        n.getVariantManager().cloneVariant(n.getVariantManager().getWorkingVariantId(), variant1);
+            String variant0 = n.getVariantManager().getWorkingVariantId();
+            String variant1 = LOADFLOW_VARIANT_ID;
 
-        runner.run(n, computationManager, params);
+            n.getVariantManager().cloneVariant(n.getVariantManager().getWorkingVariantId(), variant1);
 
-        // Get voltages for variant0
-        n.getVariantManager().setWorkingVariant(variant0);
-        Map<String, Double> vv0 = new HashMap<>();
-        n.getBusView().getBuses().forEach(b -> vv0.put(b.getId(), b.getV()));
+            runner.run(n, computationManager, params);
 
-        // Switch to variant1 and report differences
-        n.getVariantManager().setWorkingVariant(variant1);
-        DoubleSummaryStatistics doubleSummaryStatistics = new DoubleSummaryStatistics();
-        Map<String, Double> diff = new HashMap<>();
-        for (Bus b : n.getBusView().getBuses()) {
-            double v0 = vv0.get(b.getId());
-            double v1 = b.getV();
-            doubleSummaryStatistics.accept(Math.abs(v1 - v0));
-            diff.put(b.getId(), Math.abs(v1 - v0));
+            // Get voltages for variant0
+            n.getVariantManager().setWorkingVariant(variant0);
+            Map<String, Double> vv0 = new HashMap<>();
+            n.getBusView().getBuses().forEach(b -> vv0.put(b.getId(), b.getV()));
+
+            // Switch to variant1 and report differences
+            n.getVariantManager().setWorkingVariant(variant1);
+            DoubleSummaryStatistics doubleSummaryStatistics = new DoubleSummaryStatistics();
+            Map<String, Double> diff = new HashMap<>();
+            for (Bus b : n.getBusView().getBuses()) {
+                double v0 = vv0.get(b.getId());
+                double v1 = b.getV();
+                doubleSummaryStatistics.accept(Math.abs(v1 - v0));
+                diff.put(b.getId(), Math.abs(v1 - v0));
+                if (Math.abs(v1 - v0) > 10.0 && outputDetailedFormatter != null) {
+                    try {
+                        outputDetailedFormatter.writeCell(caseName);
+                        outputDetailedFormatter.writeCell(b.getId());
+                        outputDetailedFormatter.writeCell(v1);
+                        outputDetailedFormatter.writeCell(v0);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }
+            }
+
+            long busesCount = doubleSummaryStatistics.getCount();
+            double average = doubleSummaryStatistics.getAverage();
+            double deviation = Math.sqrt(diff.values().stream().mapToDouble(x -> Math.pow(x.doubleValue() - average, 2.0)).sum() / busesCount);
+            try {
+                outputFormatter.writeCell(caseName);
+                outputFormatter.writeCell(doubleSummaryStatistics.getMin());
+                outputFormatter.writeCell(doubleSummaryStatistics.getMax());
+                outputFormatter.writeCell(average);
+                outputFormatter.writeCell(deviation);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
 
-        long busesCount = doubleSummaryStatistics.getCount();
-        double average = doubleSummaryStatistics.getAverage();
-        double deviation = Math.sqrt(diff.values().stream().mapToDouble(x -> Math.pow(x.doubleValue() - average, 2.0)).sum() / busesCount);
-        try {
-            formatter.writeCell(caseName);
-            formatter.writeCell(doubleSummaryStatistics.getMin());
-            formatter.writeCell(doubleSummaryStatistics.getMax());
-            formatter.writeCell(average);
-            formatter.writeCell(deviation);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        private final ComputationManager computationManager;
+        private final Runner runner;
+        private final TableFormatter outputFormatter;
+        private final TableFormatter outputDetailedFormatter;
     }
 
     private static final String LOADFLOW_VARIANT_ID = "Loadflow-values";
