@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 import java.util.Set;
 
 import com.powsybl.commons.extensions.Extendable;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Properties;
 
@@ -52,26 +53,123 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
      * Check that this object has property with specified name.
+     *
+     * @deprecated Use {@link #hasTypedProperty(String)} instead.
      */
-    boolean hasProperty(String key);
+    @Deprecated
+    default boolean hasProperty(String key) {
+        throw new UnsupportedOperationException("Deprecated");
+    }
+
+    /**
+     * Get property associated to specified key.
+     *
+     * @deprecated Use {@link #getStringProperty(String)}, {@link #getIntegerProperty(String)},
+     *  {@link #getDoubleProperty(String)} or {@link #getBooleanProperty(String)} instead.
+     */
+    @Deprecated
+    default String getProperty(String key) {
+        throw new UnsupportedOperationException("Deprecated");
+    }
+
+    /**
+     * Get property associated to specified key, with default value.
+     *
+     * @deprecated Use {@link #getStringProperty(String)}, {@link #getIntegerProperty(String)},
+     *  {@link #getDoubleProperty(String)} or {@link #getBooleanProperty(String)} instead.
+     */
+    @Deprecated
+    default String getProperty(String key, String defaultValue) {
+        throw new UnsupportedOperationException("Deprecated");
+    }
+
+    /**
+     * Set property value associated to specified key.
+     *
+     * @deprecated Use {@link #setStringProperty(String, String)}, {@link #setIntegerProperty(String, Integer)},
+     *  {@link #setDoubleProperty(String, Double)}, {@link #setBooleanProperty(String, Boolean)} or {@link #setTypedProperty(String, Pair)} instead.
+     */
+    @Deprecated
+    default String setProperty(String key, String value) {
+        throw new UnsupportedOperationException("Deprecated");
+    }
+
+    /**
+     * Get properties key values.
+     *
+     * @deprecated Use {@link #getTypedPropertyNames()} instead.
+     */
+    @Deprecated
+    default Set<String> getPropertyNames() {
+        throw new UnsupportedOperationException("Deprecated");
+    }
+
+    public enum Type {
+        STRING, INTEGER, DOUBLE, BOOLEAN;
+    }
+
+    /**
+     * Check that this object has property with specified name.
+     */
+    boolean hasTypedProperty(String key);
+
+    /**
+     * Get the type of the property associated to specified key
+     */
+    Type getPropertyType(String key);
+
+    /**
+     * Get property associated to specified key as a String.
+     */
+    String getStringProperty(String key);
+
+    /**
+     * Get property associated to specified key as an Integer.
+     */
+    Integer getIntegerProperty(String key);
+
+    /**
+     * Get property associated to specified key as a Double.
+     */
+    Double getDoubleProperty(String key);
+
+    /**
+     * Get property associated to specified key as a Boolean.
+     */
+    Boolean getBooleanProperty(String key);
 
     /**
      * Get property associated to specified key.
      */
-    String getProperty(String key);
+    Pair<Type, Object> getTypedProperty(String key);
 
     /**
-     * Get property associated to specified key, with default value.
+     * Set String property value associated to specified key.
      */
-    String getProperty(String key, String defaultValue);
+    String setStringProperty(String key, String value);
+
+    /**
+     * Set Integer property value associated to specified key.
+     */
+    Integer setIntegerProperty(String key, Integer value);
+
+    /**
+     * Set Double property value associated to specified key.
+     */
+    Double setDoubleProperty(String key, Double value);
+
+    /**
+     * Set Boolean property value associated to specified key.
+     */
+    Boolean setBooleanProperty(String key, Boolean value);
 
     /**
      * Set property value associated to specified key.
      */
-    String setProperty(String key, String value);
+    Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value);
 
     /**
      * Get properties key values.
      */
-    Set<String> getPropertyNames();
+    Set<String> getTypedPropertyNames();
 }

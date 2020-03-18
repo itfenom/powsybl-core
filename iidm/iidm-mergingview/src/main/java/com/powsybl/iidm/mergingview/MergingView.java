@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,6 +254,104 @@ public final class MergingView implements Network {
                 .map(Network::getPropertyNames)
                 .flatMap(Set<String>::stream)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean hasTypedProperty(String key) {
+        return index.getNetworkStream()
+            .anyMatch(n -> n.hasTypedProperty(key));
+    }
+
+    @Override
+    public Type getPropertyType(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getPropertyType(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public String getStringProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getStringProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getIntegerProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Double getDoubleProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getDoubleProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getBooleanProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Pair<Type, Object> getTypedProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getTypedProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        index.getNetworkStream().forEach(n -> n.setStringProperty(key, value));
+        return value;
+    }
+
+    @Override
+    public Integer setIntegerProperty(String key, Integer value) {
+        index.getNetworkStream().forEach(n -> n.setIntegerProperty(key, value));
+        return value;
+    }
+
+    @Override
+    public Double setDoubleProperty(String key, Double value) {
+        index.getNetworkStream().forEach(n -> n.setDoubleProperty(key, value));
+        return value;
+    }
+
+    @Override
+    public Boolean setBooleanProperty(String key, Boolean value) {
+        index.getNetworkStream().forEach(n -> n.setBooleanProperty(key, value));
+        return value;
+    }
+
+    @Override
+    public Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value) {
+        index.getNetworkStream().forEach(n -> n.setTypedProperty(key, value));
+        return value;
+    }
+
+    @Override
+    public Set<String> getTypedPropertyNames() {
+        return index.getNetworkStream()
+            .map(Network::getTypedPropertyNames)
+            .flatMap(Set<String>::stream)
+            .collect(Collectors.toSet());
     }
 
     @Override

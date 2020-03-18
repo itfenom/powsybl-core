@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +25,8 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     protected String name;
 
     protected final Properties properties = new Properties();
+
+    protected final Map<String, Pair<Type, Object>> typedProperties = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -89,6 +93,84 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public Set<String> getPropertyNames() {
         return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean hasTypedProperty(String key) {
+        return typedProperties.containsKey(key);
+    }
+
+    @Override
+    public Type getPropertyType(String key) {
+        Pair<Type, Object> val = typedProperties.get(key);
+        return val != null ? val.getKey() : null;
+    }
+
+    @Override
+    public String getStringProperty(String key) {
+        Pair<Type, Object> val = typedProperties.get(key);
+        return (val != null && Type.STRING.equals(val.getKey())) ? (String) val.getValue() : null;
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key) {
+        Pair<Type, Object> val = typedProperties.get(key);
+        return (val != null && Type.INTEGER.equals(val.getKey())) ? (Integer) val.getValue() : null;
+    }
+
+    @Override
+    public Double getDoubleProperty(String key) {
+        Pair<Type, Object> val = typedProperties.get(key);
+        return (val != null && Type.DOUBLE.equals(val.getKey())) ? (Double) val.getValue() : null;
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key) {
+        Pair<Type, Object> val = typedProperties.get(key);
+        return (val != null && Type.BOOLEAN.equals(val.getKey())) ? (Boolean) val.getValue() : null;
+    }
+
+    @Override
+    public Pair<Type, Object> getTypedProperty(String key) {
+        return typedProperties.get(key);
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        Pair<Type, Object> val = new ImmutablePair<>(Type.STRING, value);
+        typedProperties.put(key, val);
+        return value;
+    }
+
+    @Override
+    public Integer setIntegerProperty(String key, Integer value) {
+        Pair<Type, Object> val = new ImmutablePair<>(Type.INTEGER, value);
+        typedProperties.put(key, val);
+        return value;
+    }
+
+    @Override
+    public Double setDoubleProperty(String key, Double value) {
+        Pair<Type, Object> val = new ImmutablePair<>(Type.DOUBLE, value);
+        typedProperties.put(key, val);
+        return value;
+    }
+
+    @Override
+    public Boolean setBooleanProperty(String key, Boolean value) {
+        Pair<Type, Object> val = new ImmutablePair<>(Type.BOOLEAN, value);
+        typedProperties.put(key, val);
+        return value;
+    }
+
+    @Override
+    public Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value) {
+        return typedProperties.put(key, value);
+    }
+
+    @Override
+    public Set<String> getTypedPropertyNames() {
+        return typedProperties.keySet();
     }
 
     @Override

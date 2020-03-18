@@ -11,6 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -448,6 +450,30 @@ public abstract class AbstractNetworkTest {
         assertEquals(3, network.getForecastDistance());
         assertEquals(sourceFormat, network.getSourceFormat());
         assertEquals(ContainerType.NETWORK, network.getContainerType());
+
+        String keyBool = "bool";
+        String keyInt = "int";
+        String keyDouble = "double";
+        String keyString = "string";
+        String keyTyped = "type";
+        Integer intValue = 5;
+        Double doubleValue = 5d;
+        String stringValue = "test";
+        Pair typedValue = new ImmutablePair<>(Identifiable.Type.STRING, "test2");
+
+        network.setBooleanProperty(keyBool, true);
+        network.setIntegerProperty(keyInt, intValue);
+        network.setDoubleProperty(keyDouble, doubleValue);
+        network.setStringProperty(keyString, stringValue);
+        network.setTypedProperty(keyTyped, typedValue);
+        assertTrue(network.getBooleanProperty(keyBool));
+        assertEquals(intValue, network.getIntegerProperty(keyInt));
+        assertEquals(doubleValue, network.getDoubleProperty(keyDouble));
+        assertEquals(stringValue, network.getStringProperty(keyString));
+        assertEquals(new ImmutablePair<>(Identifiable.Type.DOUBLE, doubleValue), network.getTypedProperty(keyDouble));
+        assertEquals(typedValue, network.getTypedProperty(keyTyped));
+        assertEquals(Identifiable.Type.STRING, network.getPropertyType(keyString));
+        assertEquals(5, network.getTypedPropertyNames().size());
     }
 
     @Test

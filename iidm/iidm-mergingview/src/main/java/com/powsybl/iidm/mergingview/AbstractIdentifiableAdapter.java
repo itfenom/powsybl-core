@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
 import java.util.Set;
@@ -68,6 +69,71 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     @Override
     public Set<String> getPropertyNames() {
         return getDelegate().getPropertyNames();
+    }
+
+    @Override
+    public boolean hasTypedProperty(String key) {
+        return getDelegate().hasTypedProperty(key);
+    }
+
+    @Override
+    public Type getPropertyType(String key) {
+        return getDelegate().getPropertyType(key);
+    }
+
+    @Override
+    public String getStringProperty(String key) {
+        return getDelegate().getStringProperty(key);
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key) {
+        return getDelegate().getIntegerProperty(key);
+    }
+
+    @Override
+    public Double getDoubleProperty(String key) {
+        return getDelegate().getDoubleProperty(key);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key) {
+        return getDelegate().getBooleanProperty(key);
+    }
+
+    @Override
+    public Pair<Type, Object> getTypedProperty(String key) {
+        return getDelegate().getTypedProperty(key);
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        return getDelegate().setStringProperty(key, value);
+    }
+
+    @Override
+    public Integer setIntegerProperty(String key, Integer value) {
+        return getDelegate().setIntegerProperty(key, value);
+    }
+
+    @Override
+    public Double setDoubleProperty(String key, Double value) {
+        return getDelegate().setDoubleProperty(key, value);
+    }
+
+    @Override
+    public Boolean setBooleanProperty(String key, Boolean value) {
+        return getDelegate().setBooleanProperty(key, value);
+    }
+
+    @Override
+    public Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value) {
+        return getDelegate().setTypedProperty(key, value);
+    }
+
+    @Override
+    public Set<String> getTypedPropertyNames() {
+        return getDelegate().getTypedPropertyNames();
     }
 
     @Override
