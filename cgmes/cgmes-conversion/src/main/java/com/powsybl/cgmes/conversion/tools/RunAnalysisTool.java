@@ -29,7 +29,6 @@ import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Bus;
@@ -186,7 +185,7 @@ public class RunAnalysisTool implements Tool {
     class CaseAnalyzer {
 
         CaseAnalyzer(ComputationManager computationManager, String name, Path outputFile, Path outputDetailedFile) throws IOException {
-            this.computationManager = LocalComputationManager.getDefault();
+            this.computationManager = computationManager;
 
             //System.out.println("Get Loadflow " + name);
             Runner runner = null;
