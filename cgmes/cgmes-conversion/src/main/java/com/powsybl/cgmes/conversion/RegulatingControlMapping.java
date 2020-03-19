@@ -65,7 +65,9 @@ public class RegulatingControlMapping {
             this.topologicalNode = p.getId("topologicalNode");
             this.enabled = p.asBoolean("enabled", true);
             this.targetValue = p.asDouble("targetValue");
-            this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
+            // targetDeadband is optional in CGMES,
+            // If not explicitly given it should be interpreted as zero
+            this.targetDeadband = p.asDouble("targetDeadband", 0);
         }
 
         void setCorrectlySet(boolean okSet) {
@@ -99,7 +101,7 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.forEach((key, value) -> {
             if (value.correctlySet == null || !value.correctlySet) {
                 context.pending("Regulating terminal",
-                        String.format("The setting of the regulating control %s is not entirely handled.", key));
+                    String.format("The setting of the regulating control %s is not entirely handled.", key));
             }
         });
 
@@ -108,12 +110,12 @@ public class RegulatingControlMapping {
 
     Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
         return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal)).filter(Terminal::isConnected)
-                .orElseGet(() -> {
-                    context.invalid("Regulating terminal", String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
-                                    "A connected terminal linked to the topological node %s is searched.",
-                            cgmesTerminal, topologicalNode));
-                    return context.terminalMapping().findFromTopologicalNode(topologicalNode);
-                });
+            .orElseGet(() -> {
+                context.invalid("Regulating terminal", String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
+                    "A connected terminal linked to the topological node %s is searched.",
+                    cgmesTerminal, topologicalNode));
+                return context.terminalMapping().findFromTopologicalNode(topologicalNode);
+            });
     }
 
     static boolean isControlModeVoltage(String controlMode) {
@@ -125,7 +127,8 @@ public class RegulatingControlMapping {
     }
 
     Terminal getRegulatingTerminal(Injection injection, String cgmesTerminal, String topologicalNode) {
-        // Will take default terminal ONLY if it has not been explicitly defined in CGMES
+        // Will take default terminal ONLY if it has not been explicitly defined in
+        // CGMES
         // the default terminal is the local terminal
         Terminal terminal = injection.getTerminal();
         if (cgmesTerminal != null || topologicalNode != null) {
