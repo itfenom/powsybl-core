@@ -22,27 +22,29 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.powsybl.cgmes.model.CgmesModelException;
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlow.Runner;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 
+@AutoService(Tool.class)
 public class RunAnalysisTool implements Tool {
 
     private static final String CASES_INPUT = "cases";
@@ -122,6 +124,7 @@ public class RunAnalysisTool implements Tool {
         if (temp == null) {
             temp = "tmp";
         }
+        //System.out.println(temp);
 
         try (FileOutputStream errFos = new FileOutputStream(new File(temp + "err.txt"))) {
             System.setErr(new PrintStream(errFos));
@@ -150,15 +153,21 @@ public class RunAnalysisTool implements Tool {
                 JsonLoadFlowParameters.update(params, parametersFile);
             }
 
+            //System.out.println("Start analysis");
             CaseAnalyzer analyzer = new CaseAnalyzer(computationManager, name, outputFile, outputDetailedFile);
+            //System.out.println("Analyzer created");
             runAnalysis(analyzer, casesInput, importConfig, inputParams, params);
+            //System.out.println("Analysis done.");
+            analyzer.close();
         }
     }
 
     private void runAnalysis(CaseAnalyzer analyzer, Path casesInput, ImportConfig importConfig,
         Properties inputParams, LoadFlowParameters params) throws IOException {
         if (Files.isDirectory(casesInput)) {
+            //System.out.println(casesInput + " is a Directory.");
             Files.walk(casesInput).forEach(caseFile -> {
+                //System.out.println(caseFile + " sended to analyse.");
                 if (Files.isDirectory(caseFile)) {
                     return;
                 }
@@ -169,15 +178,28 @@ public class RunAnalysisTool implements Tool {
                     System.err.println(caseName + " -> " + e.getMessage());
                 }
             });
+        } else {
+            //System.out.println(casesInput + " is not a Directory.");
         }
     }
 
     class CaseAnalyzer {
 
         CaseAnalyzer(ComputationManager computationManager, String name, Path outputFile, Path outputDetailedFile) throws IOException {
-            this.computationManager = computationManager;
-            runner = LoadFlow.find(name);
+            this.computationManager = LocalComputationManager.getDefault();
 
+            //System.out.println("Get Loadflow " + name);
+            Runner runner = null;
+            try {
+                runner = LoadFlow.find(name);
+            } catch (Exception e) {
+                //System.out.println(e.getMessage());
+                runner = LoadFlow.find();
+            }
+            //System.out.println("Loaded Loadflow " + runner.getName());
+            this.runner = runner;
+
+            //System.out.println("Output writer created");
             Writer outputWriter = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
             CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
             outputFormatter = csvTableFormatterFactory.create(outputWriter, "analysis results", TableFormatterConfig.load(),
@@ -185,19 +207,29 @@ public class RunAnalysisTool implements Tool {
                 new Column("Minimum"),
                 new Column("Maximum"),
                 new Column("Average"),
-                new Column("Deviation"));
+                new Column("Deviation"),
+                new Column("Loadflow"));
 
             if (outputDetailedFile == null) {
+                //System.out.println("Analysis without detailed report");
                 outputDetailedFormatter = null;
                 return;
             }
 
+            //System.out.println("Detailed output writer created");
             Writer outputDetailedWriter = Files.newBufferedWriter(outputDetailedFile, StandardCharsets.UTF_8);
             outputDetailedFormatter = csvTableFormatterFactory.create(outputDetailedWriter, "detailed results", TableFormatterConfig.load(),
                 new Column("Case"),
                 new Column("Bus"),
                 new Column("Loadflow"),
                 new Column("Case"));
+        }
+
+        public void close() throws IOException {
+            outputFormatter.close();
+            if (outputDetailedFormatter != null) {
+                outputDetailedFormatter.close();
+            }
         }
 
         public void analyse(String caseName, Path caseFile, ImportConfig importConfig, Properties inputParams, LoadFlowParameters params) {
@@ -211,7 +243,7 @@ public class RunAnalysisTool implements Tool {
 
             n.getVariantManager().cloneVariant(n.getVariantManager().getWorkingVariantId(), variant1);
 
-            runner.run(n, computationManager, params);
+            LoadFlowResult result = runner.run(n, computationManager, params);
 
             // Get voltages for variant0
             n.getVariantManager().setWorkingVariant(variant0);
@@ -225,8 +257,12 @@ public class RunAnalysisTool implements Tool {
             for (Bus b : n.getBusView().getBuses()) {
                 double v0 = vv0.get(b.getId());
                 double v1 = b.getV();
+                if (!(Double.isFinite(v0) && Double.isFinite(v1))) {
+                    continue;
+                }
                 doubleSummaryStatistics.accept(Math.abs(v1 - v0));
                 diff.put(b.getId(), Math.abs(v1 - v0));
+                //System.out.println("v0 " + v0 + " v1 " + v1 + " diff " + Math.abs(v1 - v0));
                 if (Math.abs(v1 - v0) > 10.0 && outputDetailedFormatter != null) {
                     try {
                         outputDetailedFormatter.writeCell(caseName);
@@ -248,6 +284,7 @@ public class RunAnalysisTool implements Tool {
                 outputFormatter.writeCell(doubleSummaryStatistics.getMax());
                 outputFormatter.writeCell(average);
                 outputFormatter.writeCell(deviation);
+                outputFormatter.writeCell(result.isOk());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

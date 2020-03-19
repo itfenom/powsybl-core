@@ -126,6 +126,9 @@
         <xmlunit.version>2.3.0</xmlunit.version>
 
         <powsyblmathnative.version>1.0.1</powsyblmathnative.version>
+
+        <helmflowintegration.version>1.0-SNAPSHOT</helmflowintegration.version>
+        <helmflowcore.version>3.0.2</helmflowcore.version>
     </properties>
 
     <profiles>
@@ -429,6 +432,32 @@
                 <version>${xmlunit.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>com.elequant.helmflow</groupId>
+                <artifactId>helmflow-api</artifactId>
+                <version>${helmflowintegration.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elequant.helmflow</groupId>
+                <artifactId>helmflow-api-impl</artifactId>
+                <version>${helmflowintegration.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elequant.helmflow</groupId>
+                <artifactId>helmflow-powsybl-integration</artifactId>
+                <version>${helmflowintegration.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elequant.helmflow</groupId>
+                <artifactId>helmflow-core</artifactId>
+                <version>${helmflowcore.version}</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

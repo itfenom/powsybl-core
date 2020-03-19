@@ -177,5 +177,30 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.elequant.helmflow</groupId>
+            <artifactId>helmflow-api</artifactId>
+            <version>${helmflowintegration.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elequant.helmflow</groupId>
+            <artifactId>helmflow-api-impl</artifactId>
+            <version>${helmflowintegration.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elequant.helmflow</groupId>
+            <artifactId>helmflow-powsybl-integration</artifactId>
+            <version>${helmflowintegration.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elequant.helmflow</groupId>
+            <artifactId>helmflow-core</artifactId>
+            <version>${helmflowcore.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
