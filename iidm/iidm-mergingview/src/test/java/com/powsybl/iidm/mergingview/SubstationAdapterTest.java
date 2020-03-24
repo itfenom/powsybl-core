@@ -67,6 +67,46 @@ public class SubstationAdapterTest {
         assertEquals("defaultValue", substation.getProperty("noFound", "defaultValue"));
         assertEquals(1, substation.getPropertyNames().size());
 
+        String keyBool = "bool";
+        String keyInt = "int";
+        String keyDouble = "double";
+        String keyString = "string";
+
+        Integer intValue = 5;
+        Double doubleValue = 5d;
+        String stringValue = "test";
+        Integer intValue2 = 52;
+        Double doubleValue2 = 51d;
+        String stringValue2 = "test2";
+
+        substation.setBooleanProperty(keyBool, true);
+        substation.setIntegerProperty(keyInt, intValue);
+        substation.setDoubleProperty(keyDouble, doubleValue);
+        substation.setProperty(keyString, stringValue);
+        assertTrue(substation.getBooleanProperty(keyBool));
+        assertEquals(intValue, substation.getIntegerProperty(keyInt));
+        assertEquals(doubleValue, substation.getDoubleProperty(keyDouble));
+        assertEquals(stringValue, substation.getProperty(keyString));
+        assertEquals(Identifiable.Type.STRING, substation.getPropertyType(keyString));
+        assertEquals(5, substation.getPropertyNames().size());
+        substation.setBooleanProperty(keyBool, false);
+        substation.setIntegerProperty(keyInt, intValue2);
+        substation.setDoubleProperty(keyDouble, doubleValue2);
+        substation.setProperty(keyString, stringValue2);
+        assertFalse(substation.getBooleanProperty(keyBool));
+        assertEquals(intValue2, substation.getIntegerProperty(keyInt));
+        assertEquals(doubleValue2, substation.getDoubleProperty(keyDouble));
+        assertEquals(stringValue2, substation.getProperty(keyString));
+        assertEquals(5, substation.getPropertyNames().size());
+        assertTrue(substation.removeProperty(keyString));
+        assertFalse(substation.removeProperty(keyString));
+        assertNull(substation.getProperty(keyString));
+        assertEquals(4, substation.getPropertyNames().size());
+        assertTrue(substation.getBooleanProperty("notFound", true));
+        assertEquals(intValue2, substation.getIntegerProperty("notFound", intValue2));
+        assertEquals(doubleValue2, substation.getDoubleProperty("notFound", doubleValue2));
+        assertEquals(stringValue2, substation.getProperty("notFound", stringValue2));
+
         // Extension
         assertTrue(substation.getExtensions().isEmpty());
         final AbstractExtension extension = Mockito.mock(AbstractExtension.class);

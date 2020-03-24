@@ -10,8 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -74,17 +72,17 @@ public class MergingNetworkTest {
         assertEquals(1, mergingView.getPropertyNames().size());
 
         // Typed properties
-        mergingView.setStringProperty(key, value);
-        assertTrue(mergingView.hasTypedProperty(key));
-        assertEquals(value, mergingView.getStringProperty(key));
-        assertNull(mergingView.getStringProperty("noFound"));
+        mergingView.setProperty(key, value);
+        assertTrue(mergingView.hasProperty(key));
+        assertEquals(value, mergingView.getProperty(key));
+        assertNull(mergingView.getProperty("noFound"));
         assertEquals(Identifiable.Type.STRING, mergingView.getPropertyType(key));
-        assertEquals(1, mergingView.getTypedPropertyNames().size());
+        assertEquals(1, mergingView.getPropertyNames().size());
 
         final String keyInt = "keyIntTest";
         final Integer intValue = 5;
         mergingView.setIntegerProperty(keyInt, intValue);
-        assertTrue(mergingView.hasTypedProperty(keyInt));
+        assertTrue(mergingView.hasProperty(keyInt));
         assertEquals(intValue, mergingView.getIntegerProperty(keyInt));
         assertEquals(Identifiable.Type.INTEGER, mergingView.getPropertyType(keyInt));
         assertNull(mergingView.getIntegerProperty("noFound"));
@@ -92,7 +90,7 @@ public class MergingNetworkTest {
         final String keyDouble = "keyDoubleTest";
         final Double doubleValue = 5d;
         mergingView.setDoubleProperty(keyDouble, doubleValue);
-        assertTrue(mergingView.hasTypedProperty(keyDouble));
+        assertTrue(mergingView.hasProperty(keyDouble));
         assertEquals(doubleValue, mergingView.getDoubleProperty(keyDouble));
         assertNull(mergingView.getDoubleProperty("noFound"));
         assertEquals(Identifiable.Type.DOUBLE, mergingView.getPropertyType(keyDouble));
@@ -100,18 +98,11 @@ public class MergingNetworkTest {
         final String keyBool = "keyBoolTest";
         final Boolean boolValue = true;
         mergingView.setBooleanProperty(keyBool, boolValue);
-        assertTrue(mergingView.hasTypedProperty(keyBool));
+        assertTrue(mergingView.hasProperty(keyBool));
         assertEquals(boolValue, mergingView.getBooleanProperty(keyBool));
         assertNull(mergingView.getBooleanProperty("noFound"));
         assertEquals(Identifiable.Type.BOOLEAN, mergingView.getPropertyType(keyBool));
-        assertEquals(4, mergingView.getTypedPropertyNames().size());
-
-        final String keyTyped = "keyTypedTest";
-        final Pair<Identifiable.Type, Object> typedProp = new ImmutablePair<>(Identifiable.Type.DOUBLE, doubleValue);
-        mergingView.setTypedProperty(keyTyped, typedProp);
-        assertTrue(mergingView.hasTypedProperty(keyTyped));
-        assertEquals(typedProp, mergingView.getTypedProperty(keyTyped));
-        assertNull(mergingView.getBooleanProperty("noFound"));
+        assertEquals(4, mergingView.getPropertyNames().size());
 
         // Identifiables
         assertFalse("MergingView cannot be empty", mergingView.getIdentifiables().isEmpty());

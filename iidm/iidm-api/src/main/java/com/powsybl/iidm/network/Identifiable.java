@@ -9,7 +9,6 @@ package com.powsybl.iidm.network;
 import java.util.Set;
 
 import com.powsybl.commons.extensions.Extendable;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Properties;
 
@@ -53,65 +52,32 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
      * Check that this object has property with specified name.
-     *
-     * @deprecated Use {@link #hasTypedProperty(String)} instead.
      */
-    @Deprecated
-    default boolean hasProperty(String key) {
-        throw new UnsupportedOperationException("Deprecated");
-    }
+    boolean hasProperty(String key);
 
     /**
      * Get property associated to specified key.
-     *
-     * @deprecated Use {@link #getStringProperty(String)}, {@link #getIntegerProperty(String)},
-     *  {@link #getDoubleProperty(String)} or {@link #getBooleanProperty(String)} instead.
      */
-    @Deprecated
-    default String getProperty(String key) {
-        throw new UnsupportedOperationException("Deprecated");
-    }
+    String getProperty(String key);
 
     /**
      * Get property associated to specified key, with default value.
-     *
-     * @deprecated Use {@link #getStringProperty(String)}, {@link #getIntegerProperty(String)},
-     *  {@link #getDoubleProperty(String)} or {@link #getBooleanProperty(String)} instead.
      */
-    @Deprecated
-    default String getProperty(String key, String defaultValue) {
-        throw new UnsupportedOperationException("Deprecated");
-    }
+    String getProperty(String key, String defaultValue);
 
     /**
      * Set property value associated to specified key.
-     *
-     * @deprecated Use {@link #setStringProperty(String, String)}, {@link #setIntegerProperty(String, Integer)},
-     *  {@link #setDoubleProperty(String, Double)}, {@link #setBooleanProperty(String, Boolean)} or {@link #setTypedProperty(String, Pair)} instead.
      */
-    @Deprecated
-    default String setProperty(String key, String value) {
-        throw new UnsupportedOperationException("Deprecated");
-    }
+    String setProperty(String key, String value);
 
     /**
      * Get properties key values.
-     *
-     * @deprecated Use {@link #getTypedPropertyNames()} instead.
      */
-    @Deprecated
-    default Set<String> getPropertyNames() {
-        throw new UnsupportedOperationException("Deprecated");
-    }
+    Set<String> getPropertyNames();
 
     public enum Type {
         STRING, INTEGER, DOUBLE, BOOLEAN;
     }
-
-    /**
-     * Check that this object has property with specified name.
-     */
-    boolean hasTypedProperty(String key);
 
     /**
      * Get the type of the property associated to specified key
@@ -119,34 +85,25 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     Type getPropertyType(String key);
 
     /**
-     * Get property associated to specified key as a String.
-     */
-    String getStringProperty(String key);
-
-    /**
      * Get property associated to specified key as an Integer.
      */
     Integer getIntegerProperty(String key);
+
+    Integer getIntegerProperty(String key, Integer defaultValue);
 
     /**
      * Get property associated to specified key as a Double.
      */
     Double getDoubleProperty(String key);
 
+    Double getDoubleProperty(String key, Double defaultValue);
+
     /**
      * Get property associated to specified key as a Boolean.
      */
     Boolean getBooleanProperty(String key);
 
-    /**
-     * Get property associated to specified key.
-     */
-    Pair<Type, Object> getTypedProperty(String key);
-
-    /**
-     * Set String property value associated to specified key.
-     */
-    String setStringProperty(String key, String value);
+    Boolean getBooleanProperty(String key, Boolean defaultValue);
 
     /**
      * Set Integer property value associated to specified key.
@@ -164,12 +121,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     Boolean setBooleanProperty(String key, Boolean value);
 
     /**
-     * Set property value associated to specified key.
+     * Remove property associated to specified key.
      */
-    Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value);
-
-    /**
-     * Get properties key values.
-     */
-    Set<String> getTypedPropertyNames();
+    Boolean removeProperty(String key);
 }

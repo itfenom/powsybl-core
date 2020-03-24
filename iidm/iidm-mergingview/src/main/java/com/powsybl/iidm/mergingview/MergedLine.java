@@ -41,9 +41,7 @@ class MergedLine implements Line {
 
     private final String name;
 
-    private final Properties properties = new Properties();
-
-    private final Map<String, Pair<Type, Object>> typedProperties = new HashMap<>();
+    private final Map<String, Pair<Type, Object>> properties = new HashMap<>();
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
@@ -52,7 +50,6 @@ class MergedLine implements Line {
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1, dl2), index::contains) : buildId(dl1, dl2);
         this.name = buildName(dl1, dl2);
         mergeProperties(dl1, dl2);
-        mergeTypedProperties(dl1, dl2);
     }
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
@@ -86,43 +83,22 @@ class MergedLine implements Line {
         Set<String> dl1Properties = dl1.getPropertyNames();
         Set<String> dl2Properties = dl2.getPropertyNames();
         Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
+        Sets.difference(dl1Properties, commonProperties).forEach(prop -> setProperty(prop, dl1.getProperty(prop)));
+        Sets.difference(dl2Properties, commonProperties).forEach(prop -> setProperty(prop, dl2.getProperty(prop)));
         commonProperties.forEach(prop -> {
             if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
-                properties.setProperty(prop, dl1.getProperty(prop));
+                setProperty(prop, dl1.getProperty(prop));
             } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                properties.setProperty(prop, dl2.getProperty(prop));
-            } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else {
-                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
-            }
-        });
-    }
-
-    private void mergeTypedProperties(DanglingLine dl1, DanglingLine dl2) {
-        Set<String> dl1Properties = dl1.getTypedPropertyNames();
-        Set<String> dl2Properties = dl2.getTypedPropertyNames();
-        Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> setTypedProperty(prop, dl1.getTypedProperty(prop)));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> setTypedProperty(prop, dl2.getTypedProperty(prop)));
-        commonProperties.forEach(prop -> {
-            if (dl1.getTypedProperty(prop).equals(dl2.getTypedProperty(prop))) {
-                setTypedProperty(prop, dl1.getTypedProperty(prop));
-            } else if (dl1.getTypedProperty(prop) == null) {
                 LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'",
-                    prop, dl2.getTypedProperty(prop).getValue().toString());
-                setTypedProperty(prop, dl2.getTypedProperty(prop));
-            } else if (dl2.getTypedProperty(prop) == null) {
+                    prop, dl2.getProperty(prop));
+                setProperty(prop, dl2.getProperty(prop));
+            } else if (dl2.getProperty(prop).isEmpty()) {
                 LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'",
-                    prop, dl1.getTypedProperty(prop).getValue().toString());
-                setTypedProperty(prop, dl1.getTypedProperty(prop));
+                    prop, dl1.getProperty(prop));
+                setProperty(prop, dl1.getProperty(prop));
             } else {
                 LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line",
-                    prop, dl1.getTypedProperty(prop).getValue().toString(), dl2.getTypedProperty(prop).getValue().toString());
+                    prop, dl1.getProperty(prop), dl2.getProperty(prop));
             }
         });
     }
@@ -452,109 +428,103 @@ class MergedLine implements Line {
     }
 
     @Override
-    public boolean hasProperty(final String key) {
+    public boolean hasProperty(String key) {
         return properties.containsKey(key);
     }
 
     @Override
-    public Set<String> getPropertyNames() {
-        return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
-    }
-
-    @Override
-    public String getProperty(final String key) {
-        Object val = properties.get(key);
-        return val != null ? val.toString() : null;
-    }
-
-    @Override
-    public String getProperty(final String key, final String defaultValue) {
-        Object val = properties.getOrDefault(key, defaultValue);
-        return val != null ? val.toString() : null;
-    }
-
-    @Override
-    public String setProperty(final String key, final String value) {
-        dl1.setProperty(key, value);
-        dl2.setProperty(key, value);
-        return (String) properties.setProperty(key, value);
-    }
-
-    @Override
-    public boolean hasTypedProperty(String key) {
-        return typedProperties.containsKey(key);
-    }
-
-    @Override
     public Type getPropertyType(String key) {
-        return typedProperties.get(key) != null ? typedProperties.get(key).getKey() : null;
+        return properties.get(key) != null ? properties.get(key).getKey() : null;
     }
 
     @Override
-    public String getStringProperty(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
+    public String getProperty(String key) {
+        Pair<Type, Object> val = properties.get(key);
         return (val != null && Type.STRING.equals(val.getKey())) ? (String) val.getValue() : null;
     }
 
     @Override
+    public String getProperty(String key, String defaultValue) {
+        Pair<Type, Object> val = properties.get(key);
+        return (val != null && Type.STRING.equals(val.getKey())) ? (String) val.getValue() : defaultValue;
+    }
+
+    @Override
     public Integer getIntegerProperty(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
+        Pair<Type, Object> val = properties.get(key);
         return (val != null && Type.INTEGER.equals(val.getKey())) ? (Integer) val.getValue() : null;
     }
 
     @Override
+    public Integer getIntegerProperty(String key, Integer defaultValue) {
+        Pair<Type, Object> val = properties.get(key);
+        return (val != null && Type.INTEGER.equals(val.getKey())) ? (Integer) val.getValue() : defaultValue;
+    }
+
+    @Override
     public Double getDoubleProperty(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
+        Pair<Type, Object> val = properties.get(key);
         return (val != null && Type.DOUBLE.equals(val.getKey())) ? (Double) val.getValue() : null;
     }
 
     @Override
+    public Double getDoubleProperty(String key, Double defaultValue) {
+        Pair<Type, Object> val = properties.get(key);
+        return (val != null && Type.DOUBLE.equals(val.getKey())) ? (Double) val.getValue() : defaultValue;
+    }
+
+    @Override
     public Boolean getBooleanProperty(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
+        Pair<Type, Object> val = properties.get(key);
         return (val != null && Type.BOOLEAN.equals(val.getKey())) ? (Boolean) val.getValue() : null;
     }
 
     @Override
-    public Pair<Type, Object> getTypedProperty(String key) {
-        return typedProperties.get(key);
+    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+        Pair<Type, Object> val = properties.get(key);
+        return (val != null && Type.BOOLEAN.equals(val.getKey())) ? (Boolean) val.getValue() : defaultValue;
     }
 
     @Override
-    public String setStringProperty(String key, String value) {
+    public String setProperty(String key, String value) {
         Pair<Type, Object> val = new ImmutablePair<>(Type.STRING, value);
-        typedProperties.put(key, val);
+        properties.put(key, val);
         return value;
     }
 
     @Override
     public Integer setIntegerProperty(String key, Integer value) {
         Pair<Type, Object> val = new ImmutablePair<>(Type.INTEGER, value);
-        typedProperties.put(key, val);
+        properties.put(key, val);
         return value;
     }
 
     @Override
     public Double setDoubleProperty(String key, Double value) {
         Pair<Type, Object> val = new ImmutablePair<>(Type.DOUBLE, value);
-        typedProperties.put(key, val);
+        properties.put(key, val);
         return value;
     }
 
     @Override
     public Boolean setBooleanProperty(String key, Boolean value) {
         Pair<Type, Object> val = new ImmutablePair<>(Type.BOOLEAN, value);
-        typedProperties.put(key, val);
+        properties.put(key, val);
         return value;
     }
 
     @Override
-    public Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value) {
-        return typedProperties.put(key, value);
+    public Set<String> getPropertyNames() {
+        return properties.keySet();
     }
 
     @Override
-    public Set<String> getTypedPropertyNames() {
-        return typedProperties.keySet();
+    public Boolean removeProperty(String key) {
+        if (hasProperty(key)) {
+            properties.remove(key);
+            return true;
+        }
+        return false;
     }
 
     // -------------------------------

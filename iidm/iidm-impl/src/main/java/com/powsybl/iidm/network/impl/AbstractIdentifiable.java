@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,9 +23,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected String name;
 
-    protected final Properties properties = new Properties();
-
-    protected final Map<String, Pair<Type, Object>> typedProperties = new HashMap<>();
+    protected final Map<String, Pair<Type, Object>> properties = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -53,10 +50,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return getTypeDescription() + " '" + id + "': ";
     }
 
-    public Properties getProperties() {
-        return properties;
-    }
-
     @Override
     public boolean hasProperty() {
         return !properties.isEmpty();
@@ -68,109 +61,123 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
+    public Type getPropertyType(String key) {
+        Pair<Type, Object> val = properties.get(key);
+        return val != null ? val.getKey() : null;
+    }
+
+    private boolean isValueFound(Pair<Type, Object> val, Type type) {
+        return val != null && type.equals(val.getKey());
+    }
+
+    @Override
     public String getProperty(String key) {
-        Object val = properties.get(key);
-        return val != null ? val.toString() : null;
+        Pair<Type, Object> val = properties.get(key);
+        return isValueFound(val, Type.STRING) ? (String) val.getValue() : null;
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        Object val = properties.getOrDefault(key, defaultValue);
-        return val != null ? val.toString() : null;
-    }
-
-    @Override
-    public String setProperty(String key, String value) {
-        String oldValue = (String) properties.put(key, value);
-        if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", value);
-        } else {
-            getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, value);
-        }
-        return oldValue;
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
-    }
-
-    @Override
-    public boolean hasTypedProperty(String key) {
-        return typedProperties.containsKey(key);
-    }
-
-    @Override
-    public Type getPropertyType(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
-        return val != null ? val.getKey() : null;
-    }
-
-    @Override
-    public String getStringProperty(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
-        return (val != null && Type.STRING.equals(val.getKey())) ? (String) val.getValue() : null;
+        Pair<Type, Object> val = properties.get(key);
+        return isValueFound(val, Type.STRING) ? (String) val.getValue() : defaultValue;
     }
 
     @Override
     public Integer getIntegerProperty(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
-        return (val != null && Type.INTEGER.equals(val.getKey())) ? (Integer) val.getValue() : null;
+        Pair<Type, Object> val = properties.get(key);
+        return isValueFound(val, Type.INTEGER) ? (Integer) val.getValue() : null;
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key, Integer defaultValue) {
+        Pair<Type, Object> val = properties.get(key);
+        return isValueFound(val, Type.INTEGER) ? (Integer) val.getValue() : defaultValue;
     }
 
     @Override
     public Double getDoubleProperty(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
-        return (val != null && Type.DOUBLE.equals(val.getKey())) ? (Double) val.getValue() : null;
+        Pair<Type, Object> val = properties.get(key);
+        return isValueFound(val, Type.DOUBLE) ? (Double) val.getValue() : null;
+    }
+
+    @Override
+    public Double getDoubleProperty(String key, Double defaultValue) {
+        Pair<Type, Object> val = properties.get(key);
+        return isValueFound(val, Type.DOUBLE) ? (Double) val.getValue() : defaultValue;
     }
 
     @Override
     public Boolean getBooleanProperty(String key) {
-        Pair<Type, Object> val = typedProperties.get(key);
-        return (val != null && Type.BOOLEAN.equals(val.getKey())) ? (Boolean) val.getValue() : null;
+        Pair<Type, Object> val = properties.get(key);
+        return isValueFound(val, Type.BOOLEAN) ? (Boolean) val.getValue() : null;
     }
 
     @Override
-    public Pair<Type, Object> getTypedProperty(String key) {
-        return typedProperties.get(key);
+    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+        Pair<Type, Object> val = properties.get(key);
+        return isValueFound(val, Type.BOOLEAN) ? (Boolean) val.getValue() : defaultValue;
     }
 
     @Override
-    public String setStringProperty(String key, String value) {
+    public String setProperty(String key, String value) {
         Pair<Type, Object> val = new ImmutablePair<>(Type.STRING, value);
-        typedProperties.put(key, val);
-        return value;
+        Pair<Type, Object> oldValue = properties.put(key, val);
+        if (Objects.isNull(oldValue)) {
+            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", val);
+            return null;
+        }
+        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, val);
+        return (String) oldValue.getValue();
     }
 
     @Override
     public Integer setIntegerProperty(String key, Integer value) {
         Pair<Type, Object> val = new ImmutablePair<>(Type.INTEGER, value);
-        typedProperties.put(key, val);
-        return value;
+        Pair<Type, Object> oldValue = properties.put(key, val);
+        if (Objects.isNull(oldValue)) {
+            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", val);
+            return null;
+        }
+        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, val);
+        return (Integer) oldValue.getValue();
     }
 
     @Override
     public Double setDoubleProperty(String key, Double value) {
         Pair<Type, Object> val = new ImmutablePair<>(Type.DOUBLE, value);
-        typedProperties.put(key, val);
-        return value;
+        Pair<Type, Object> oldValue = properties.put(key, val);
+        if (Objects.isNull(oldValue)) {
+            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", val);
+            return null;
+        }
+        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, val);
+        return (Double) oldValue.getValue();
     }
 
     @Override
     public Boolean setBooleanProperty(String key, Boolean value) {
         Pair<Type, Object> val = new ImmutablePair<>(Type.BOOLEAN, value);
-        typedProperties.put(key, val);
-        return value;
+        Pair<Type, Object> oldValue = properties.put(key, val);
+        if (Objects.isNull(oldValue)) {
+            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", val);
+            return false;
+        }
+        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, val);
+        return (Boolean) oldValue.getValue();
     }
 
     @Override
-    public Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value) {
-        return typedProperties.put(key, value);
+    public Set<String> getPropertyNames() {
+        return properties.keySet();
     }
 
     @Override
-    public Set<String> getTypedPropertyNames() {
-        return typedProperties.keySet();
+    public Boolean removeProperty(String key) {
+        if (hasProperty(key)) {
+            properties.remove(key);
+            return true;
+        }
+        return false;
     }
 
     @Override

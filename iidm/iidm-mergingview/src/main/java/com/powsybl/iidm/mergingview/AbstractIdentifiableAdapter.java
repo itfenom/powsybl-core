@@ -9,7 +9,6 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
 import java.util.Set;
@@ -47,33 +46,8 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public boolean hasProperty(final String key) {
+    public boolean hasProperty(String key) {
         return getDelegate().hasProperty(key);
-    }
-
-    @Override
-    public String getProperty(final String key) {
-        return getDelegate().getProperty(key);
-    }
-
-    @Override
-    public String getProperty(final String key, final String defaultValue) {
-        return getDelegate().getProperty(key, defaultValue);
-    }
-
-    @Override
-    public String setProperty(final String key, final String value) {
-        return getDelegate().setProperty(key, value);
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        return getDelegate().getPropertyNames();
-    }
-
-    @Override
-    public boolean hasTypedProperty(String key) {
-        return getDelegate().hasTypedProperty(key);
     }
 
     @Override
@@ -82,8 +56,13 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public String getStringProperty(String key) {
-        return getDelegate().getStringProperty(key);
+    public String getProperty(String key) {
+        return getDelegate().getProperty(key);
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        return getDelegate().getProperty(key, defaultValue);
     }
 
     @Override
@@ -92,8 +71,18 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
+    public Integer getIntegerProperty(String key, Integer defaultValue) {
+        return getDelegate().getIntegerProperty(key, defaultValue);
+    }
+
+    @Override
     public Double getDoubleProperty(String key) {
         return getDelegate().getDoubleProperty(key);
+    }
+
+    @Override
+    public Double getDoubleProperty(String key, Double defaultValue) {
+        return getDelegate().getDoubleProperty(key, defaultValue);
     }
 
     @Override
@@ -102,13 +91,13 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public Pair<Type, Object> getTypedProperty(String key) {
-        return getDelegate().getTypedProperty(key);
+    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+        return getDelegate().getBooleanProperty(key, defaultValue);
     }
 
     @Override
-    public String setStringProperty(String key, String value) {
-        return getDelegate().setStringProperty(key, value);
+    public String setProperty(String key, String value) {
+        return getDelegate().setProperty(key, value);
     }
 
     @Override
@@ -127,13 +116,13 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value) {
-        return getDelegate().setTypedProperty(key, value);
+    public Set<String> getPropertyNames() {
+        return getDelegate().getPropertyNames();
     }
 
     @Override
-    public Set<String> getTypedPropertyNames() {
-        return getDelegate().getTypedPropertyNames();
+    public Boolean removeProperty(String key) {
+        return getDelegate().removeProperty(key);
     }
 
     @Override

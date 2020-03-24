@@ -255,6 +255,45 @@ public class DanglingLineAdapterTest {
         mergedLine.setProperty("key", "value");
         assertEquals("value", mergedLine.getProperty("key"));
         assertEquals("defaultValue", mergedLine.getProperty("noKey", "defaultValue"));
+
+        String keyBool = "bool";
+        String keyInt = "int";
+        String keyDouble = "double";
+        String keyString = "string";
+        Integer intValue = 5;
+        Double doubleValue = 5d;
+        String stringValue = "test";
+        Integer intValue2 = 52;
+        Double doubleValue2 = 51d;
+        String stringValue2 = "test2";
+
+        mergedLine.setBooleanProperty(keyBool, true);
+        mergedLine.setIntegerProperty(keyInt, intValue);
+        mergedLine.setDoubleProperty(keyDouble, doubleValue);
+        mergedLine.setProperty(keyString, stringValue);
+        assertTrue(mergedLine.getBooleanProperty(keyBool));
+        assertEquals(intValue, mergedLine.getIntegerProperty(keyInt));
+        assertEquals(doubleValue, mergedLine.getDoubleProperty(keyDouble));
+        assertEquals(stringValue, mergedLine.getProperty(keyString));
+        assertEquals(Identifiable.Type.STRING, mergedLine.getPropertyType(keyString));
+        assertEquals(8, mergedLine.getPropertyNames().size());
+        mergedLine.setBooleanProperty(keyBool, false);
+        mergedLine.setIntegerProperty(keyInt, intValue2);
+        mergedLine.setDoubleProperty(keyDouble, doubleValue2);
+        mergedLine.setProperty(keyString, stringValue2);
+        assertFalse(mergedLine.getBooleanProperty(keyBool));
+        assertEquals(intValue2, mergedLine.getIntegerProperty(keyInt));
+        assertEquals(doubleValue2, mergedLine.getDoubleProperty(keyDouble));
+        assertEquals(stringValue2, mergedLine.getProperty(keyString));
+        assertEquals(8, mergedLine.getPropertyNames().size());
+        assertTrue(mergedLine.removeProperty(keyString));
+        assertFalse(mergedLine.removeProperty(keyString));
+        assertNull(mergedLine.getProperty(keyString));
+        assertEquals(7, mergedLine.getPropertyNames().size());
+        assertTrue(mergedLine.getBooleanProperty("notFound", true));
+        assertEquals(intValue2, mergedLine.getIntegerProperty("notFound", intValue2));
+        assertEquals(doubleValue2, mergedLine.getDoubleProperty("notFound", doubleValue2));
+        assertEquals(stringValue2, mergedLine.getProperty("notFound", stringValue2));
     }
 
     @Test

@@ -13,7 +13,6 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import gnu.trove.list.array.TDoubleArrayList;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -69,6 +68,11 @@ public class VariantManagerImplTest {
         }
 
         @Override
+        public Type getPropertyType(String key) {
+            return null;
+        }
+
+        @Override
         public String getProperty(String key) {
             return null;
         }
@@ -79,32 +83,12 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public String setProperty(String key, String value) {
-            return null;
-        }
-
-        @Override
-        public Set<String> getPropertyNames() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public boolean hasTypedProperty(String key) {
-            return false;
-        }
-
-        @Override
-        public Type getPropertyType(String key) {
-            return null;
-        }
-
-        @Override
-        public String getStringProperty(String key) {
-            return null;
-        }
-
-        @Override
         public Integer getIntegerProperty(String key) {
+            return null;
+        }
+
+        @Override
+        public Integer getIntegerProperty(String key, Integer defaultValue) {
             return null;
         }
 
@@ -114,17 +98,22 @@ public class VariantManagerImplTest {
         }
 
         @Override
+        public Double getDoubleProperty(String key, Double defaultValue) {
+            return null;
+        }
+
+        @Override
         public Boolean getBooleanProperty(String key) {
             return null;
         }
 
         @Override
-        public Pair<Type, Object> getTypedProperty(String key) {
+        public Boolean getBooleanProperty(String key, Boolean defaultValue) {
             return null;
         }
 
         @Override
-        public String setStringProperty(String key, String value) {
+        public String setProperty(String key, String value) {
             return null;
         }
 
@@ -144,12 +133,12 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public Pair<Type, Object> setTypedProperty(String key, Pair<Type, Object> value) {
+        public Set<String> getPropertyNames() {
             return null;
         }
 
         @Override
-        public Set<String> getTypedPropertyNames() {
+        public Boolean removeProperty(String key) {
             return null;
         }
 

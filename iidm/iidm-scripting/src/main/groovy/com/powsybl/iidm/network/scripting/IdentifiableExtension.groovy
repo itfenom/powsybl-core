@@ -18,14 +18,14 @@ class IdentifiableExtension {
     static Object propertyMissing(Identifiable self, String name) {
         // first check if an extension exist then a property
         Extension extension = self.getExtensionByName(name)
-        extension != null ? extension : self.properties[name]
+        extension != null ? extension : self.getProperty(name)
     }
 
     static void propertyMissing(Identifiable self, String name, Object value) {
         if (value == null) {
-            self.properties.remove(name)
+            self.removeProperty(name)
         } else {
-            self.properties[name] = value;
+            self.setProperty(name, value);
         }
     }
 
