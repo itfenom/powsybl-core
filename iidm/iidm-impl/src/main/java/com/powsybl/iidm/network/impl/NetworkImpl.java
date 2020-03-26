@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.impl.util.RefObj;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
 import gnu.trove.list.array.TIntArrayList;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -997,23 +999,121 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    private void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties) {
+    private static final String INCONSISTENCY_WARN_EMPTY_SIDE_1 = "Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'";
+    private static final String INCONSISTENCY_WARN_EMPTY_SIDE_2 = "Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'";
+    private static final String INCONSISTENCY_ERROR_BOTH_SIDES = "Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line";
+
+    private void mergeStringProperty(DanglingLine dl1, DanglingLine dl2, String prop, Map<String, Pair<Type, Object>> properties) {
+        if (Objects.equals(dl1.getProperty(prop), dl2.getProperty(prop))) {
+            properties.put(prop, new ImmutablePair<>(Type.STRING, dl1.getProperty(prop)));
+        } else if (dl1.getProperty(prop).isEmpty()) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_1, prop, dl2.getProperty(prop));
+            properties.put(prop, new ImmutablePair<>(Type.STRING, dl2.getProperty(prop)));
+        } else if (dl2.getProperty(prop).isEmpty()) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_2, prop, dl1.getProperty(prop));
+            properties.put(prop, new ImmutablePair<>(Type.STRING, dl1.getProperty(prop)));
+        } else {
+            LOGGER.error(INCONSISTENCY_ERROR_BOTH_SIDES, prop, dl1.getProperty(prop), dl2.getProperty(prop));
+        }
+    }
+
+    private void mergeIntegerProperty(DanglingLine dl1, DanglingLine dl2, String prop, Map<String, Pair<Type, Object>> properties) {
+        if (Objects.equals(dl1.getIntegerProperty(prop), dl2.getIntegerProperty(prop))) {
+            properties.put(prop, new ImmutablePair<>(Type.INTEGER, dl1.getIntegerProperty(prop)));
+        } else if (dl1.getIntegerProperty(prop) == null) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_1, prop, dl2.getIntegerProperty(prop));
+            properties.put(prop, new ImmutablePair<>(Type.INTEGER, dl2.getIntegerProperty(prop)));
+        } else if (dl2.getIntegerProperty(prop) == null) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_2, prop, dl1.getIntegerProperty(prop));
+            properties.put(prop, new ImmutablePair<>(Type.INTEGER, dl1.getIntegerProperty(prop)));
+        } else {
+            LOGGER.error(INCONSISTENCY_ERROR_BOTH_SIDES, prop, dl1.getIntegerProperty(prop), dl2.getIntegerProperty(prop));
+        }
+    }
+
+    private void mergeDoubleProperty(DanglingLine dl1, DanglingLine dl2, String prop, Map<String, Pair<Type, Object>> properties) {
+        if (Objects.equals(dl1.getDoubleProperty(prop), dl2.getDoubleProperty(prop))) {
+            properties.put(prop, new ImmutablePair<>(Type.DOUBLE, dl1.getDoubleProperty(prop)));
+        } else if (dl1.getDoubleProperty(prop) == null) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_1, prop, dl2.getDoubleProperty(prop));
+            properties.put(prop, new ImmutablePair<>(Type.DOUBLE, dl2.getDoubleProperty(prop)));
+        } else if (dl2.getDoubleProperty(prop) == null) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_2, prop, dl1.getDoubleProperty(prop));
+            properties.put(prop, new ImmutablePair<>(Type.DOUBLE, dl1.getDoubleProperty(prop)));
+        } else {
+            LOGGER.error(INCONSISTENCY_ERROR_BOTH_SIDES, prop, dl1.getDoubleProperty(prop), dl2.getDoubleProperty(prop));
+        }
+    }
+
+    private void mergeBooleanProperty(DanglingLine dl1, DanglingLine dl2, String prop, Map<String, Pair<Type, Object>> properties) {
+        if (Objects.equals(dl1.getBooleanProperty(prop), dl2.getBooleanProperty(prop))) {
+            properties.put(prop, new ImmutablePair<>(Type.BOOLEAN, dl1.getBooleanProperty(prop)));
+        } else if (dl1.getBooleanProperty(prop) == null) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_1, prop, dl2.getBooleanProperty(prop));
+            properties.put(prop, new ImmutablePair<>(Type.BOOLEAN, dl2.getBooleanProperty(prop)));
+        } else if (dl2.getBooleanProperty(prop) == null) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_2, prop, dl1.getBooleanProperty(prop));
+            properties.put(prop, new ImmutablePair<>(Type.BOOLEAN, dl1.getBooleanProperty(prop)));
+        } else {
+            LOGGER.error(INCONSISTENCY_ERROR_BOTH_SIDES, prop, dl1.getBooleanProperty(prop), dl2.getBooleanProperty(prop));
+        }
+    }
+
+    private void mergeProperties(DanglingLine dl1, DanglingLine dl2, Map<String, Pair<Type, Object>> properties) {
         Set<String> dl1Properties = dl1.getPropertyNames();
         Set<String> dl2Properties = dl2.getPropertyNames();
         Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
+        Sets.difference(dl1Properties, commonProperties).forEach(prop -> {
+            switch (dl1.getPropertyType(prop)) {
+                case STRING:
+                    properties.put(prop, new ImmutablePair<>(Type.STRING, dl1.getProperty(prop)));
+                    break;
+                case INTEGER:
+                    properties.put(prop, new ImmutablePair<>(Type.INTEGER, dl1.getIntegerProperty(prop)));
+                    break;
+                case DOUBLE:
+                    properties.put(prop, new ImmutablePair<>(Type.DOUBLE, dl1.getDoubleProperty(prop)));
+                    break;
+                case BOOLEAN:
+                    properties.put(prop, new ImmutablePair<>(Type.BOOLEAN, dl1.getBooleanProperty(prop)));
+                    break;
+            }
+        });
+        Sets.difference(dl2Properties, commonProperties).forEach(prop -> {
+            switch (dl2.getPropertyType(prop)) {
+                case STRING:
+                    properties.put(prop, new ImmutablePair<>(Type.STRING, dl2.getProperty(prop)));
+                    break;
+                case INTEGER:
+                    properties.put(prop, new ImmutablePair<>(Type.INTEGER, dl2.getIntegerProperty(prop)));
+                    break;
+                case DOUBLE:
+                    properties.put(prop, new ImmutablePair<>(Type.DOUBLE, dl2.getDoubleProperty(prop)));
+                    break;
+                case BOOLEAN:
+                    properties.put(prop, new ImmutablePair<>(Type.BOOLEAN, dl2.getBooleanProperty(prop)));
+                    break;
+            }
+        });
         commonProperties.forEach(prop -> {
-            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                properties.setProperty(prop, dl2.getProperty(prop));
-            } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                properties.setProperty(prop, dl1.getProperty(prop));
+            if (dl1.getPropertyType(prop).equals(dl2.getPropertyType(prop))) {
+                switch (dl1.getPropertyType(prop)) {
+                    case STRING:
+                        mergeStringProperty(dl1, dl2, prop, properties);
+                        break;
+                    case INTEGER:
+                        mergeIntegerProperty(dl1, dl2, prop, properties);
+                        break;
+                    case DOUBLE:
+                        mergeDoubleProperty(dl1, dl2, prop, properties);
+                        break;
+                    case BOOLEAN:
+                        mergeBooleanProperty(dl1, dl2, prop, properties);
+                        break;
+                }
             } else {
-                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+                LOGGER.error("Inconsistencies of property type for '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line",
+                    prop, dl1.getPropertyType(prop), dl2.getPropertyType(prop));
             }
         });
     }
@@ -1067,8 +1167,22 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
-            mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-
+            mergedLine.properties.forEach((key, val) -> {
+                switch (val.getKey()) {
+                    case STRING:
+                        l.setProperty(key, (String) val.getValue());
+                        break;
+                    case INTEGER:
+                        l.setIntegerProperty(key, (Integer) val.getValue());
+                        break;
+                    case DOUBLE:
+                        l.setDoubleProperty(key, (Double) val.getValue());
+                        break;
+                    case BOOLEAN:
+                        l.setBooleanProperty(key, (Boolean) val.getValue());
+                        break;
+                }
+            });
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
     }
@@ -1084,7 +1198,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         String connectableBus2;
         Integer node1;
         Integer node2;
-        Properties properties = new Properties();
+        Map<String, Pair<Type, Object>> properties = new HashMap<>();
 
         class HalfMergedLine {
             String id;

@@ -14,18 +14,44 @@ import com.powsybl.iidm.network.Identifiable
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class IdentifiableExtension {
-
     static Object propertyMissing(Identifiable self, String name) {
         // first check if an extension exist then a property
         Extension extension = self.getExtensionByName(name)
-        extension != null ? extension : self.getProperty(name)
+        if (extension != null) {
+            extension
+        } else {
+            switch(self.getPropertyType(name)) {
+                case Identifiable.Type.BOOLEAN:
+                    self.getBooleanProperty(name);
+                    break;
+                case Identifiable.Type.DOUBLE:
+                    self.getDoubleProperty(name);
+                    break;
+                case Identifiable.Type.INTEGER:
+                    self.getIntegerProperty(name);
+                    break;
+                default:
+                    self.getProperty(name);
+            }
+        }
     }
-
     static void propertyMissing(Identifiable self, String name, Object value) {
         if (value == null) {
             self.removeProperty(name)
         } else {
-            self.setProperty(name, value);
+            switch(self.getPropertyType(name)) {
+                case Identifiable.Type.BOOLEAN:
+                    self.getBooleanProperty(name);
+                    break;
+                case Identifiable.Type.DOUBLE:
+                    self.getDoubleProperty(name);
+                    break;
+                case Identifiable.Type.INTEGER:
+                    self.getIntegerProperty(name);
+                    break;
+                default:
+                    self.getProperty(name);
+            }
         }
     }
 

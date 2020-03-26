@@ -123,11 +123,11 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         Pair<Type, Object> val = new ImmutablePair<>(Type.STRING, value);
         Pair<Type, Object> oldValue = properties.put(key, val);
         if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", val);
-            return null;
+            notifyElementAdded(key, val);
+        } else {
+            notifyElementReplaced(key, oldValue, val);
         }
-        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, val);
-        return (String) oldValue.getValue();
+        return oldValue != null ? (String) oldValue.getValue() : null;
     }
 
     @Override
@@ -135,11 +135,11 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         Pair<Type, Object> val = new ImmutablePair<>(Type.INTEGER, value);
         Pair<Type, Object> oldValue = properties.put(key, val);
         if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", val);
-            return null;
+            notifyElementAdded(key, val);
+        } else {
+            notifyElementReplaced(key, oldValue, val);
         }
-        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, val);
-        return (Integer) oldValue.getValue();
+        return oldValue != null ? (Integer) oldValue.getValue() : null;
     }
 
     @Override
@@ -147,11 +147,11 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         Pair<Type, Object> val = new ImmutablePair<>(Type.DOUBLE, value);
         Pair<Type, Object> oldValue = properties.put(key, val);
         if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", val);
-            return null;
+            notifyElementAdded(key, val);
+        } else {
+            notifyElementReplaced(key, oldValue, val);
         }
-        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, val);
-        return (Double) oldValue.getValue();
+        return oldValue != null ? (Double) oldValue.getValue() : null;
     }
 
     @Override
@@ -159,11 +159,19 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         Pair<Type, Object> val = new ImmutablePair<>(Type.BOOLEAN, value);
         Pair<Type, Object> oldValue = properties.put(key, val);
         if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", val);
-            return false;
+            notifyElementAdded(key, val);
+        } else {
+            notifyElementReplaced(key, oldValue, val);
         }
-        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, val);
-        return (Boolean) oldValue.getValue();
+        return oldValue != null ? (Boolean) oldValue.getValue() : null;
+    }
+
+    private void notifyElementAdded(String key, Object newValue) {
+        getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", newValue);
+    }
+
+    private void notifyElementReplaced(String key, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, newValue);
     }
 
     @Override
@@ -174,7 +182,8 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public Boolean removeProperty(String key) {
         if (hasProperty(key)) {
-            properties.remove(key);
+            Pair<Type, Object> oldValue = properties.remove(key);
+            getNetwork().getListeners().notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
             return true;
         }
         return false;

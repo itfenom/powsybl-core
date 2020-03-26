@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -214,13 +215,13 @@ public final class MergingView implements Network {
     @Override
     public boolean hasProperty() {
         return index.getNetworkStream()
-            .anyMatch(n -> n.hasProperty());
+                .anyMatch(Network::hasProperty);
     }
 
     @Override
     public boolean hasProperty(String key) {
         return index.getNetworkStream()
-            .anyMatch(n -> n.hasProperty(key));
+                .anyMatch(n -> n.hasProperty(key));
     }
 
     @Override
@@ -234,71 +235,51 @@ public final class MergingView implements Network {
 
     @Override
     public String getProperty(String key) {
-        return index.getNetworkStream()
-            .map(n -> n.getProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+        return getProperty(key, null);
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        return index.getNetworkStream()
-            .map(n -> n.getProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(defaultValue);
+        Function<Network, String> function = (Network n) -> n.getProperty(key);
+        return getTypedProperty(defaultValue, function);
     }
 
     @Override
     public Integer getIntegerProperty(String key) {
-        return index.getNetworkStream()
-            .map(n -> n.getIntegerProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+        return getIntegerProperty(key, null);
     }
 
     @Override
     public Integer getIntegerProperty(String key, Integer defaultValue) {
-        return index.getNetworkStream()
-            .map(n -> n.getIntegerProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(defaultValue);
+        Function<Network, Integer> function = (Network n) -> n.getIntegerProperty(key);
+        return getTypedProperty(defaultValue, function);
     }
 
     @Override
     public Double getDoubleProperty(String key) {
-        return index.getNetworkStream()
-            .map(n -> n.getDoubleProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+        return getDoubleProperty(key, null);
     }
 
     @Override
     public Double getDoubleProperty(String key, Double defaultValue) {
-        return index.getNetworkStream()
-            .map(n -> n.getDoubleProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(defaultValue);
+        Function<Network, Double> function = (Network n) -> n.getDoubleProperty(key);
+        return getTypedProperty(defaultValue, function);
     }
 
     @Override
     public Boolean getBooleanProperty(String key) {
-        return index.getNetworkStream()
-            .map(n -> n.getBooleanProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+        return getBooleanProperty(key, null);
     }
 
     @Override
     public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+        Function<Network, Boolean> function = (Network n) -> n.getBooleanProperty(key);
+        return getTypedProperty(defaultValue, function);
+    }
+
+    private <T> T getTypedProperty(T defaultValue, Function<Network, T> function) {
         return index.getNetworkStream()
-            .map(n -> n.getBooleanProperty(key))
+            .map(function)
             .filter(Objects::nonNull)
             .findFirst()
             .orElse(defaultValue);
@@ -307,25 +288,25 @@ public final class MergingView implements Network {
     @Override
     public String setProperty(String key, String value) {
         index.getNetworkStream().forEach(n -> n.setProperty(key, value));
-        return value;
+        return null;
     }
 
     @Override
     public Integer setIntegerProperty(String key, Integer value) {
         index.getNetworkStream().forEach(n -> n.setIntegerProperty(key, value));
-        return value;
+        return null;
     }
 
     @Override
     public Double setDoubleProperty(String key, Double value) {
         index.getNetworkStream().forEach(n -> n.setDoubleProperty(key, value));
-        return value;
+        return null;
     }
 
     @Override
     public Boolean setBooleanProperty(String key, Boolean value) {
         index.getNetworkStream().forEach(n -> n.setBooleanProperty(key, value));
-        return value;
+        return false;
     }
 
     @Override
@@ -340,9 +321,8 @@ public final class MergingView implements Network {
     public Boolean removeProperty(String key) {
         if (hasProperty()) {
             index.getNetworkStream().forEach(n -> n.removeProperty(key));
-            return true;
         }
-        return false;
+        return hasProperty();
     }
 
     @Override
