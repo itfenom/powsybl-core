@@ -241,11 +241,45 @@ public class DanglingLineAdapterTest {
         dl1.setProperty("network", "noEquipNetwork"); // test empty property
         dl1.setProperty("vl", ""); // test empty property
 
+        dl1.setProperty("str", "test");
+        dl1.setProperty("str2", "");
+        dl1.setProperty("str3", "test*");
+        dl1.setProperty("strError", "error");
+        dl1.setIntegerProperty("int", 5);
+        dl1.setIntegerProperty("int2", null);
+        dl1.setIntegerProperty("int3", 10);
+        dl1.setIntegerProperty("intError", 54);
+        dl1.setDoubleProperty("double", 5d);
+        dl1.setDoubleProperty("double2", null);
+        dl1.setDoubleProperty("double3", 8d);
+        dl1.setDoubleProperty("doubleError", 10d);
+        dl1.setBooleanProperty("bool", true);
+        dl1.setBooleanProperty("bool2", null);
+        dl1.setBooleanProperty("bool3", true);
+        dl1.setBooleanProperty("boolError", true);
+
         final DanglingLine dl2 = createDanglingLine(noEquipNetwork, "vl2", "dl2", "dl", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busB");
         dl2.setProperty("ucteCode", dl2.getUcteXnodeCode()); // test equals property
         dl2.setProperty("id", dl2.getId()); // test not equals property
         dl2.setProperty("network", ""); // test empty property
         dl2.setProperty("vl", "vl2"); // test empty property
+
+        dl2.setProperty("str", "test");
+        dl2.setProperty("str2", "test*");
+        dl2.setProperty("str3", "");
+        dl2.setProperty("strError", "errorDiff");
+        dl2.setIntegerProperty("int", 5);
+        dl2.setIntegerProperty("int2", 10);
+        dl2.setIntegerProperty("int3", null);
+        dl2.setIntegerProperty("intError", 55);
+        dl2.setDoubleProperty("double", 5d);
+        dl2.setDoubleProperty("double2", 8d);
+        dl2.setDoubleProperty("double3", null);
+        dl2.setDoubleProperty("doubleError", 11d);
+        dl2.setBooleanProperty("bool", true);
+        dl2.setBooleanProperty("bool2", true);
+        dl2.setBooleanProperty("bool3", null);
+        dl2.setBooleanProperty("boolError", false);
 
         mergingView.merge(noEquipNetwork);
         final Line line = mergingView.getLine("dl1 + dl2");
@@ -254,15 +288,15 @@ public class DanglingLineAdapterTest {
 
         assertTrue(mergedLine.hasProperty());
         assertTrue(mergedLine.hasProperty("ucteCode"));
-        assertEquals(3, mergedLine.getPropertyNames().size());
+        assertEquals(15, mergedLine.getPropertyNames().size());
         mergedLine.setProperty("key", "value");
         assertEquals("value", mergedLine.getProperty("key"));
         assertEquals("defaultValue", mergedLine.getProperty("noKey", "defaultValue"));
 
-        String keyBool = "bool";
-        String keyInt = "int";
-        String keyDouble = "double";
-        String keyString = "string";
+        String keyBool = "boolTest";
+        String keyInt = "intTest";
+        String keyDouble = "doubleTest";
+        String keyString = "stringTest";
         Integer intValue = 5;
         Double doubleValue = 5d;
         String stringValue = "test";
@@ -279,7 +313,7 @@ public class DanglingLineAdapterTest {
         assertEquals(doubleValue, mergedLine.getDoubleProperty(keyDouble));
         assertEquals(stringValue, mergedLine.getProperty(keyString));
         assertEquals(Identifiable.Type.STRING, mergedLine.getPropertyType(keyString));
-        assertEquals(8, mergedLine.getPropertyNames().size());
+        assertEquals(20, mergedLine.getPropertyNames().size());
         mergedLine.setBooleanProperty(keyBool, false);
         mergedLine.setIntegerProperty(keyInt, intValue2);
         mergedLine.setDoubleProperty(keyDouble, doubleValue2);
@@ -288,11 +322,11 @@ public class DanglingLineAdapterTest {
         assertEquals(intValue2, mergedLine.getIntegerProperty(keyInt));
         assertEquals(doubleValue2, mergedLine.getDoubleProperty(keyDouble));
         assertEquals(stringValue2, mergedLine.getProperty(keyString));
-        assertEquals(8, mergedLine.getPropertyNames().size());
+        assertEquals(20, mergedLine.getPropertyNames().size());
         assertTrue(mergedLine.removeProperty(keyString));
         assertFalse(mergedLine.removeProperty(keyString));
         assertNull(mergedLine.getProperty(keyString));
-        assertEquals(7, mergedLine.getPropertyNames().size());
+        assertEquals(19, mergedLine.getPropertyNames().size());
         assertTrue(mergedLine.getBooleanProperty("notFound", true));
         assertEquals(intValue2, mergedLine.getIntegerProperty("notFound", intValue2));
         assertEquals(doubleValue2, mergedLine.getDoubleProperty("notFound", doubleValue2));

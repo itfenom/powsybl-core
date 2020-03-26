@@ -44,6 +44,11 @@ public class MergingNetworkTest {
     @Test
     public void testSetterGetter() {
         mergingView.merge(n1, n2);
+
+        int count1 = n1.getDanglingLineCount();
+        int count2 = n2.getDanglingLineCount();
+        int count3 = n3.getDanglingLineCount();
+
         assertSame(mergingView, mergingView.getNetwork());
         assertSame(mergingView, mergingView.getIdentifiable("n1").getNetwork());
         assertSame(mergingView, mergingView.getIdentifiable("n2").getNetwork());
@@ -106,6 +111,10 @@ public class MergingNetworkTest {
         assertNull(mergingView.getBooleanProperty("noFound"));
         assertEquals(Identifiable.Type.BOOLEAN, mergingView.getPropertyType(keyBool));
         assertEquals(4, mergingView.getPropertyNames().size());
+
+        assertTrue(mergingView.removeProperty(keyBool));
+        assertFalse(mergingView.removeProperty(keyBool));
+        assertEquals(3, mergingView.getPropertyNames().size());
 
         // Identifiables
         assertFalse("MergingView cannot be empty", mergingView.getIdentifiables().isEmpty());
