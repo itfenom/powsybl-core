@@ -23,11 +23,18 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected String name;
 
+    protected boolean fictitious = false;
+
     protected final Map<String, Pair<Type, Object>> properties = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    AbstractIdentifiable(String id, String name, boolean fictitious) {
+        this(id, name);
+        this.fictitious = fictitious;
     }
 
     @Override
@@ -38,6 +45,18 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public String getName() {
         return name != null ? name : id;
+    }
+
+    @Override
+    public boolean isFictitious() {
+        return fictitious;
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        boolean oldValue = this.fictitious;
+        this.fictitious = fictitious;
+        getNetwork().getListeners().notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 
     @Override

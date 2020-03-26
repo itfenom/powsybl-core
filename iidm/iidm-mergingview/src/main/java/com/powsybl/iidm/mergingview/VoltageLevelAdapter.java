@@ -281,20 +281,24 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         // -------------------------------
         // Simple delegated methods ------
         // -------------------------------
+
+        /**
+         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
+         */
         @Override
+        @Deprecated
         public int getNodeCount() {
             return getDelegate().getNodeCount();
         }
 
         @Override
-        public int[] getNodes() {
-            return getDelegate().getNodes();
+        public int getMaximumNodeIndex() {
+            return getDelegate().getMaximumNodeIndex();
         }
 
         @Override
-        public VoltageLevel.NodeBreakerView setNodeCount(final int count) {
-            getDelegate().setNodeCount(count);
-            return this;
+        public int[] getNodes() {
+            return getDelegate().getNodes();
         }
 
         @Override
@@ -671,7 +675,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public void visitEquipments(final TopologyVisitor visitor) {
-        getDelegate().visitEquipments(visitor);
+        getDelegate().visitEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
     }
 
     @Override

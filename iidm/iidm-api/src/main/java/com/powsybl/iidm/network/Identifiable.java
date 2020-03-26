@@ -124,4 +124,18 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * Remove property associated to specified key.
      */
     Boolean removeProperty(String key);
+
+    /**
+     * Get the fictitious status
+     */
+    default boolean isFictitious() {
+        return false;
+    }
+
+    /**
+     * Set the fictitious status
+     */
+    default void setFictitious(boolean fictitious) {
+        throw new UnsupportedOperationException();
+    }
 }
