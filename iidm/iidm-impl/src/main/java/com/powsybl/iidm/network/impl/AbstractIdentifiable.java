@@ -146,7 +146,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         } else {
             notifyElementReplaced(key, oldValue, val);
         }
-        return oldValue != null ? (String) oldValue.getValue() : null;
+        return oldValue != null && val.getKey().equals(oldValue.getKey()) ? (String) oldValue.getValue() : null;
     }
 
     @Override
@@ -158,7 +158,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         } else {
             notifyElementReplaced(key, oldValue, val);
         }
-        return oldValue != null ? (Integer) oldValue.getValue() : null;
+        return oldValue != null && val.getKey().equals(oldValue.getKey()) ? (Integer) oldValue.getValue() : null;
     }
 
     @Override
@@ -170,7 +170,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         } else {
             notifyElementReplaced(key, oldValue, val);
         }
-        return oldValue != null ? (Double) oldValue.getValue() : null;
+        return oldValue != null && val.getKey().equals(oldValue.getKey()) ? (Double) oldValue.getValue() : null;
     }
 
     @Override
@@ -182,7 +182,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         } else {
             notifyElementReplaced(key, oldValue, val);
         }
-        return oldValue != null ? (Boolean) oldValue.getValue() : null;
+        return oldValue != null && val.getKey().equals(oldValue.getKey()) ? (Boolean) oldValue.getValue() : null;
     }
 
     private void notifyElementAdded(String key, Object newValue) {
@@ -200,12 +200,12 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Boolean removeProperty(String key) {
-        if (hasProperty(key)) {
+        boolean hasProperty = hasProperty(key);
+        if (hasProperty) {
             Pair<Type, Object> oldValue = properties.remove(key);
             getNetwork().getListeners().notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
-            return true;
         }
-        return false;
+        return hasProperty;
     }
 
     @Override

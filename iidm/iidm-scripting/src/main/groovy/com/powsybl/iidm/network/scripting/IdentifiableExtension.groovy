@@ -22,16 +22,16 @@ class IdentifiableExtension {
         } else {
             switch(self.getPropertyType(name)) {
                 case Identifiable.Type.BOOLEAN:
-                    self.getBooleanProperty(name);
+                    self.getBooleanProperty(name)
                     break;
                 case Identifiable.Type.DOUBLE:
-                    self.getDoubleProperty(name);
+                    self.getDoubleProperty(name)
                     break;
                 case Identifiable.Type.INTEGER:
-                    self.getIntegerProperty(name);
+                    self.getIntegerProperty(name)
                     break;
                 default:
-                    self.getProperty(name);
+                    self.getProperty(name)
             }
         }
     }
@@ -41,16 +41,16 @@ class IdentifiableExtension {
         } else {
             switch(self.getPropertyType(name)) {
                 case Identifiable.Type.BOOLEAN:
-                    self.getBooleanProperty(name);
+                    self.getBooleanProperty(name)
                     break;
                 case Identifiable.Type.DOUBLE:
-                    self.getDoubleProperty(name);
+                    self.getDoubleProperty(name)
                     break;
                 case Identifiable.Type.INTEGER:
-                    self.getIntegerProperty(name);
+                    self.getIntegerProperty(name)
                     break;
                 default:
-                    self.getProperty(name);
+                    self.getProperty(name)
             }
         }
     }

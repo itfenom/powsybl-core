@@ -321,7 +321,7 @@ public final class MergingView implements Network {
 
     @Override
     public Boolean removeProperty(String key) {
-        Boolean hasProperty = hasProperty(key);
+        boolean hasProperty = hasProperty(key);
         if (hasProperty) {
             index.getNetworkStream().forEach(n -> n.removeProperty(key));
         }
