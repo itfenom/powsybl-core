@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -63,8 +64,8 @@ public class SubstationAdapterTest {
         assertFalse(substation.hasProperty());
         substation.setProperty(key, value);
         assertTrue(substation.hasProperty(key));
-        assertEquals(value, substation.getProperty(key));
-        assertEquals("defaultValue", substation.getProperty("noFound", "defaultValue"));
+        assertTrue(substation.getProperty(key).isPresent());
+        assertEquals(value, substation.getProperty(key).get());
         assertEquals(1, substation.getPropertyNames().size());
 
         String keyBool = "bool";
@@ -72,40 +73,55 @@ public class SubstationAdapterTest {
         String keyDouble = "double";
         String keyString = "string";
 
-        Integer intValue = 5;
-        Double doubleValue = 5d;
+        int intValue = 5;
+        double doubleValue = 5d;
         String stringValue = "test";
-        Integer intValue2 = 52;
-        Double doubleValue2 = 51d;
+        int intValue2 = 52;
+        double doubleValue2 = 51d;
         String stringValue2 = "test2";
 
         substation.setBooleanProperty(keyBool, true);
         substation.setIntegerProperty(keyInt, intValue);
         substation.setDoubleProperty(keyDouble, doubleValue);
         substation.setProperty(keyString, stringValue);
-        assertTrue(substation.getBooleanProperty(keyBool));
-        assertEquals(intValue, substation.getIntegerProperty(keyInt));
-        assertEquals(doubleValue, substation.getDoubleProperty(keyDouble));
-        assertEquals(stringValue, substation.getProperty(keyString));
-        assertEquals(Identifiable.Type.STRING, substation.getPropertyType(keyString));
+
+        assertTrue(substation.getBooleanProperty(keyBool).isPresent());
+        assertTrue(substation.getBooleanProperty(keyBool).get());
+        assertTrue(substation.getIntegerProperty(keyInt).isPresent());
+        assertEquals(intValue, substation.getIntegerProperty(keyInt).getAsInt());
+        assertTrue(substation.getDoubleProperty(keyDouble).isPresent());
+        assertEquals(doubleValue, substation.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(substation.getProperty(keyString).isPresent());
+        assertEquals(stringValue, substation.getProperty(keyString).get());
+        assertEquals(Properties.Type.STRING, substation.getPropertyType(keyString));
         assertEquals(5, substation.getPropertyNames().size());
+
         substation.setBooleanProperty(keyBool, false);
         substation.setIntegerProperty(keyInt, intValue2);
         substation.setDoubleProperty(keyDouble, doubleValue2);
         substation.setProperty(keyString, stringValue2);
-        assertFalse(substation.getBooleanProperty(keyBool));
-        assertEquals(intValue2, substation.getIntegerProperty(keyInt));
-        assertEquals(doubleValue2, substation.getDoubleProperty(keyDouble));
-        assertEquals(stringValue2, substation.getProperty(keyString));
+        assertTrue(substation.getBooleanProperty(keyBool).isPresent());
+        assertFalse(substation.getBooleanProperty(keyBool).get());
+        assertTrue(substation.getIntegerProperty(keyInt).isPresent());
+        assertEquals(intValue2, substation.getIntegerProperty(keyInt).getAsInt());
+        assertTrue(substation.getDoubleProperty(keyDouble).isPresent());
+        assertEquals(doubleValue2, substation.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(substation.getProperty(keyString).isPresent());
+        assertEquals(stringValue2, substation.getProperty(keyString).get());
         assertEquals(5, substation.getPropertyNames().size());
         assertTrue(substation.removeProperty(keyString));
         assertFalse(substation.removeProperty(keyString));
-        assertNull(substation.getProperty(keyString));
+        assertFalse(substation.getProperty(keyString).isPresent());
         assertEquals(4, substation.getPropertyNames().size());
-        assertTrue(substation.getBooleanProperty("notFound", true));
-        assertEquals(intValue2, substation.getIntegerProperty("notFound", intValue2));
-        assertEquals(doubleValue2, substation.getDoubleProperty("notFound", doubleValue2));
-        assertEquals(stringValue2, substation.getProperty("notFound", stringValue2));
+
+        assertTrue(substation.getBooleanProperty("notFound", true).isPresent());
+        assertTrue(substation.getBooleanProperty("notFound", true).get());
+        assertTrue(substation.getIntegerProperty("notFound", intValue2).isPresent());
+        assertEquals(intValue2, substation.getIntegerProperty("notFound", intValue2).getAsInt());
+        assertTrue(substation.getDoubleProperty("notFound", doubleValue2).isPresent());
+        assertEquals(doubleValue2, substation.getDoubleProperty("notFound", doubleValue2).getAsDouble(), 0.001d);
+        assertTrue(substation.getProperty("notFound", stringValue2).isPresent());
+        assertEquals(stringValue2, substation.getProperty("notFound", stringValue2).get());
 
         // Extension
         assertTrue(substation.getExtensions().isEmpty());

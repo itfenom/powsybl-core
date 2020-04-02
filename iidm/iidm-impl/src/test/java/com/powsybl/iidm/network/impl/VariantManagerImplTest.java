@@ -12,12 +12,11 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.util.Properties;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
@@ -68,48 +67,48 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public Type getPropertyType(String key) {
+        public Properties.Type getPropertyType(String key) {
             return null;
         }
 
         @Override
-        public String getProperty(String key) {
-            return null;
+        public Optional<String> getProperty(String key) {
+            return Optional.empty();
         }
 
         @Override
-        public String getProperty(String key, String defaultValue) {
-            return null;
+        public Optional<String> getProperty(String key, String defaultValue) {
+            return Optional.empty();
         }
 
         @Override
-        public Integer getIntegerProperty(String key) {
-            return null;
+        public OptionalInt getIntegerProperty(String key) {
+            return OptionalInt.empty();
         }
 
         @Override
-        public Integer getIntegerProperty(String key, Integer defaultValue) {
-            return null;
+        public OptionalInt getIntegerProperty(String key, Integer defaultValue) {
+            return OptionalInt.empty();
         }
 
         @Override
-        public Double getDoubleProperty(String key) {
-            return null;
+        public OptionalDouble getDoubleProperty(String key) {
+            return OptionalDouble.empty();
         }
 
         @Override
-        public Double getDoubleProperty(String key, Double defaultValue) {
-            return null;
+        public OptionalDouble getDoubleProperty(String key, Double defaultValue) {
+            return OptionalDouble.empty();
         }
 
         @Override
-        public Boolean getBooleanProperty(String key) {
-            return null;
+        public Optional<Boolean> getBooleanProperty(String key) {
+            return Optional.empty();
         }
 
         @Override
-        public Boolean getBooleanProperty(String key, Boolean defaultValue) {
-            return null;
+        public Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue) {
+            return Optional.empty();
         }
 
         @Override

@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.network.util.Properties;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
@@ -177,17 +178,19 @@ public abstract class AbstractNetworkTest {
         busCalc.setProperty(key, value);
         assertTrue(busCalc.hasProperty());
         assertTrue(busCalc.hasProperty(key));
-        assertEquals(value, busCalc.getProperty(key));
-        assertEquals("default", busCalc.getProperty("invalid", "default"));
+        assertTrue(busCalc.getProperty(key).isPresent());
+        assertEquals(value, busCalc.getProperty(key).get());
+        assertTrue(busCalc.getProperty("invalid", "default").isPresent());
+        assertEquals("default", busCalc.getProperty("invalid", "default").get());
         assertEquals(2, busCalc.getPropertyNames().size());
-        Pair<Identifiable.Type, Object> val1 = new ImmutablePair<>(Identifiable.Type.STRING, value);
+        Pair<Properties.Type, Object> val1 = new ImmutablePair<>(Properties.Type.STRING, value);
 
         // Check notification done
         verify(mockedListener, times(1))
                .onElementAdded(busCalc, "properties[" + key + "]", val1);
         // Check no notification on same property
         String value2 = "ValueTest2";
-        Pair<Identifiable.Type, Object> val2 = new ImmutablePair<>(Identifiable.Type.STRING, value2);
+        Pair<Properties.Type, Object> val2 = new ImmutablePair<>(Properties.Type.STRING, value2);
         busCalc.setProperty(key, value2);
         verify(mockedListener, times(1))
                .onElementReplaced(busCalc, "properties[" + key + "]", val1, val2);
@@ -484,42 +487,55 @@ public abstract class AbstractNetworkTest {
         String keyDouble = "double";
         String keyString = "string";
 
-        Integer intValue = 5;
-        Double doubleValue = 5d;
+        int intValue = 5;
+        double doubleValue = 5d;
         String stringValue = "test";
-        Integer intValue2 = 52;
-        Double doubleValue2 = 51d;
+        int intValue2 = 52;
+        double doubleValue2 = 51d;
         String stringValue2 = "test2";
 
         network.setBooleanProperty(keyBool, true);
         network.setIntegerProperty(keyInt, intValue);
         network.setDoubleProperty(keyDouble, doubleValue);
         network.setProperty(keyString, stringValue);
-        assertTrue(network.getBooleanProperty(keyBool));
-        assertEquals(intValue, network.getIntegerProperty(keyInt));
-        assertEquals(doubleValue, network.getDoubleProperty(keyDouble));
-        assertEquals(stringValue, network.getProperty(keyString));
-        assertEquals(Identifiable.Type.STRING, network.getPropertyType(keyString));
+
+        assertTrue(network.getBooleanProperty(keyBool).isPresent());
+        assertTrue(network.getBooleanProperty(keyBool).get());
+        assertTrue(network.getIntegerProperty(keyInt).isPresent());
+        assertEquals(intValue, network.getIntegerProperty(keyInt).getAsInt());
+        assertTrue(network.getDoubleProperty(keyDouble).isPresent());
+        assertEquals(doubleValue, network.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(network.getProperty(keyString).isPresent());
+        assertEquals(stringValue, network.getProperty(keyString).get());
+        assertEquals(Properties.Type.STRING, network.getPropertyType(keyString));
         assertEquals(4, network.getPropertyNames().size());
 
         network.setBooleanProperty(keyBool, false);
         network.setIntegerProperty(keyInt, intValue2);
         network.setDoubleProperty(keyDouble, doubleValue2);
         network.setProperty(keyString, stringValue2);
-        assertFalse(network.getBooleanProperty(keyBool));
-        assertEquals(intValue2, network.getIntegerProperty(keyInt));
-        assertEquals(doubleValue2, network.getDoubleProperty(keyDouble));
-        assertEquals(stringValue2, network.getProperty(keyString));
+        assertTrue(network.getBooleanProperty(keyBool).isPresent());
+        assertFalse(network.getBooleanProperty(keyBool).get());
+        assertTrue(network.getIntegerProperty(keyInt).isPresent());
+        assertEquals(intValue2, network.getIntegerProperty(keyInt).getAsInt());
+        assertTrue(network.getDoubleProperty(keyDouble).isPresent());
+        assertEquals(doubleValue2, network.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(network.getProperty(keyString).isPresent());
+        assertEquals(stringValue2, network.getProperty(keyString).get());
         assertEquals(4, network.getPropertyNames().size());
         assertTrue(network.removeProperty(keyString));
         assertFalse(network.removeProperty(keyString));
-        assertNull(network.getProperty(keyString));
+        assertFalse(network.getProperty(keyString).isPresent());
         assertEquals(3, network.getPropertyNames().size());
 
-        assertTrue(network.getBooleanProperty("notFound", true));
-        assertEquals(intValue2, network.getIntegerProperty("notFound", intValue2));
-        assertEquals(doubleValue2, network.getDoubleProperty("notFound", doubleValue2));
-        assertEquals(stringValue2, network.getProperty("notFound", stringValue2));
+        assertTrue(network.getBooleanProperty("notFound", true).isPresent());
+        assertTrue(network.getBooleanProperty("notFound", true).get());
+        assertTrue(network.getIntegerProperty("notFound", intValue2).isPresent());
+        assertEquals(intValue2, network.getIntegerProperty("notFound", intValue2).getAsInt());
+        assertTrue(network.getDoubleProperty("notFound", doubleValue2).isPresent());
+        assertEquals(doubleValue2, network.getDoubleProperty("notFound", doubleValue2).getAsDouble(), 0.001d);
+        assertTrue(network.getProperty("notFound", stringValue2).isPresent());
+        assertEquals(stringValue2, network.getProperty("notFound", stringValue2).get());
 
     }
 

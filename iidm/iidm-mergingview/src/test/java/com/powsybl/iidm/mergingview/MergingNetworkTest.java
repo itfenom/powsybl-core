@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.Properties;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -75,41 +76,47 @@ public class MergingNetworkTest {
         assertFalse(mergingView.hasProperty());
         mergingView.setProperty(key, value);
         assertTrue(mergingView.hasProperty(key));
-        assertEquals(value, mergingView.getProperty(key));
-        assertEquals("defaultValue", mergingView.getProperty("noFound", "defaultValue"));
+        assertTrue(mergingView.getProperty(key).isPresent());
+        assertEquals(value, mergingView.getProperty(key).get());
+        assertTrue(mergingView.getProperty("noFound", "defaultValue").isPresent());
+        assertEquals("defaultValue", mergingView.getProperty("noFound", "defaultValue").get());
         assertEquals(1, mergingView.getPropertyNames().size());
 
         // Typed properties
         mergingView.setProperty(key, value);
         assertTrue(mergingView.hasProperty(key));
-        assertEquals(value, mergingView.getProperty(key));
-        assertNull(mergingView.getProperty("noFound"));
-        assertEquals(Identifiable.Type.STRING, mergingView.getPropertyType(key));
+        assertTrue(mergingView.getProperty(key).isPresent());
+        assertEquals(value, mergingView.getProperty(key).get());
+        assertFalse(mergingView.getProperty("noFound").isPresent());
+        assertEquals(Properties.Type.STRING, mergingView.getPropertyType(key));
         assertEquals(1, mergingView.getPropertyNames().size());
 
         final String keyInt = "keyIntTest";
-        final Integer intValue = 5;
+        final int intValue = 5;
         mergingView.setIntegerProperty(keyInt, intValue);
         assertTrue(mergingView.hasProperty(keyInt));
-        assertEquals(intValue, mergingView.getIntegerProperty(keyInt));
-        assertEquals(Identifiable.Type.INTEGER, mergingView.getPropertyType(keyInt));
-        assertNull(mergingView.getIntegerProperty("noFound"));
+        assertTrue(mergingView.getIntegerProperty(keyInt).isPresent());
+        assertEquals(intValue, mergingView.getIntegerProperty(keyInt).getAsInt());
+        assertEquals(Properties.Type.INTEGER, mergingView.getPropertyType(keyInt));
+        assertFalse(mergingView.getIntegerProperty("noFound").isPresent());
 
         final String keyDouble = "keyDoubleTest";
-        final Double doubleValue = 5d;
+        final double doubleValue = 5d;
         mergingView.setDoubleProperty(keyDouble, doubleValue);
         assertTrue(mergingView.hasProperty(keyDouble));
-        assertEquals(doubleValue, mergingView.getDoubleProperty(keyDouble));
-        assertNull(mergingView.getDoubleProperty("noFound"));
-        assertEquals(Identifiable.Type.DOUBLE, mergingView.getPropertyType(keyDouble));
+        assertTrue(mergingView.getDoubleProperty(keyDouble).isPresent());
+        assertEquals(doubleValue, mergingView.getDoubleProperty(keyDouble).getAsDouble(), 0.00001d);
+        assertFalse(mergingView.getDoubleProperty("noFound").isPresent());
+        assertEquals(Properties.Type.DOUBLE, mergingView.getPropertyType(keyDouble));
 
         final String keyBool = "keyBoolTest";
-        final Boolean boolValue = true;
+        final boolean boolValue = true;
         mergingView.setBooleanProperty(keyBool, boolValue);
         assertTrue(mergingView.hasProperty(keyBool));
-        assertEquals(boolValue, mergingView.getBooleanProperty(keyBool));
-        assertNull(mergingView.getBooleanProperty("noFound"));
-        assertEquals(Identifiable.Type.BOOLEAN, mergingView.getPropertyType(keyBool));
+        assertTrue(mergingView.getBooleanProperty(keyBool).isPresent());
+        assertEquals(boolValue, mergingView.getBooleanProperty(keyBool).get());
+        assertFalse(mergingView.getBooleanProperty("noFound").isPresent());
+        assertEquals(Properties.Type.BOOLEAN, mergingView.getPropertyType(keyBool));
         assertEquals(4, mergingView.getPropertyNames().size());
 
         assertTrue(mergingView.removeProperty(keyBool));

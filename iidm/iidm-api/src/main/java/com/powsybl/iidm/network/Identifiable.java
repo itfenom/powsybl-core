@@ -6,11 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Set;
+import java.util.*;
 
 import com.powsybl.commons.extensions.Extendable;
-
-import java.util.Properties;
 
 /**
  * An object that is part of the network model and that is identified uniquely
@@ -58,12 +56,12 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Get property associated to specified key.
      */
-    String getProperty(String key);
+    Optional<String> getProperty(String key);
 
     /**
      * Get property associated to specified key, with default value.
      */
-    String getProperty(String key, String defaultValue);
+    Optional<String> getProperty(String key, String defaultValue);
 
     /**
      * Set property value associated to specified key.
@@ -75,35 +73,31 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      */
     Set<String> getPropertyNames();
 
-    public enum Type {
-        STRING, INTEGER, DOUBLE, BOOLEAN;
-    }
-
     /**
      * Get the type of the property associated to specified key
      */
-    Type getPropertyType(String key);
+    com.powsybl.iidm.network.util.Properties.Type getPropertyType(String key);
 
     /**
      * Get property associated to specified key as an Integer.
      */
-    Integer getIntegerProperty(String key);
+    OptionalInt getIntegerProperty(String key);
 
-    Integer getIntegerProperty(String key, Integer defaultValue);
+    OptionalInt getIntegerProperty(String key, Integer defaultValue);
 
     /**
      * Get property associated to specified key as a Double.
      */
-    Double getDoubleProperty(String key);
+    OptionalDouble getDoubleProperty(String key);
 
-    Double getDoubleProperty(String key, Double defaultValue);
+    OptionalDouble getDoubleProperty(String key, Double defaultValue);
 
     /**
      * Get property associated to specified key as a Boolean.
      */
-    Boolean getBooleanProperty(String key);
+    Optional<Boolean> getBooleanProperty(String key);
 
-    Boolean getBooleanProperty(String key, Boolean defaultValue);
+    Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue);
 
     /**
      * Set Integer property value associated to specified key.

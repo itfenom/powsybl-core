@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.Properties;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -289,48 +290,61 @@ public class DanglingLineAdapterTest {
         assertTrue(mergedLine.hasProperty());
         assertTrue(mergedLine.hasProperty("ucteCode"));
         assertEquals(15, mergedLine.getPropertyNames().size());
-        mergedLine.setProperty("key", "value");
-        assertEquals("value", mergedLine.getProperty("key"));
-        assertEquals("defaultValue", mergedLine.getProperty("noKey", "defaultValue"));
 
-        String keyBool = "boolTest";
-        String keyInt = "intTest";
-        String keyDouble = "doubleTest";
-        String keyString = "stringTest";
-        Integer intValue = 5;
-        Double doubleValue = 5d;
+        String keyBool = "bool-test";
+        String keyInt = "int-test";
+        String keyDouble = "double-test";
+        String keyString = "string-test";
+
+        int intValue = 5;
+        double doubleValue = 5d;
         String stringValue = "test";
-        Integer intValue2 = 52;
-        Double doubleValue2 = 51d;
+        int intValue2 = 52;
+        double doubleValue2 = 51d;
         String stringValue2 = "test2";
 
         mergedLine.setBooleanProperty(keyBool, true);
         mergedLine.setIntegerProperty(keyInt, intValue);
         mergedLine.setDoubleProperty(keyDouble, doubleValue);
         mergedLine.setProperty(keyString, stringValue);
-        assertTrue(mergedLine.getBooleanProperty(keyBool));
-        assertEquals(intValue, mergedLine.getIntegerProperty(keyInt));
-        assertEquals(doubleValue, mergedLine.getDoubleProperty(keyDouble));
-        assertEquals(stringValue, mergedLine.getProperty(keyString));
-        assertEquals(Identifiable.Type.STRING, mergedLine.getPropertyType(keyString));
-        assertEquals(20, mergedLine.getPropertyNames().size());
+
+        assertTrue(mergedLine.getBooleanProperty(keyBool).isPresent());
+        assertTrue(mergedLine.getBooleanProperty(keyBool).get());
+        assertTrue(mergedLine.getIntegerProperty(keyInt).isPresent());
+        assertEquals(intValue, mergedLine.getIntegerProperty(keyInt).getAsInt());
+        assertTrue(mergedLine.getDoubleProperty(keyDouble).isPresent());
+        assertEquals(doubleValue, mergedLine.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(mergedLine.getProperty(keyString).isPresent());
+        assertEquals(stringValue, mergedLine.getProperty(keyString).get());
+        assertEquals(Properties.Type.STRING, mergedLine.getPropertyType(keyString));
+        assertEquals(19, mergedLine.getPropertyNames().size());
+
         mergedLine.setBooleanProperty(keyBool, false);
         mergedLine.setIntegerProperty(keyInt, intValue2);
         mergedLine.setDoubleProperty(keyDouble, doubleValue2);
         mergedLine.setProperty(keyString, stringValue2);
-        assertFalse(mergedLine.getBooleanProperty(keyBool));
-        assertEquals(intValue2, mergedLine.getIntegerProperty(keyInt));
-        assertEquals(doubleValue2, mergedLine.getDoubleProperty(keyDouble));
-        assertEquals(stringValue2, mergedLine.getProperty(keyString));
-        assertEquals(20, mergedLine.getPropertyNames().size());
+        assertTrue(mergedLine.getBooleanProperty(keyBool).isPresent());
+        assertFalse(mergedLine.getBooleanProperty(keyBool).get());
+        assertTrue(mergedLine.getIntegerProperty(keyInt).isPresent());
+        assertEquals(intValue2, mergedLine.getIntegerProperty(keyInt).getAsInt());
+        assertTrue(mergedLine.getDoubleProperty(keyDouble).isPresent());
+        assertEquals(doubleValue2, mergedLine.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(mergedLine.getProperty(keyString).isPresent());
+        assertEquals(stringValue2, mergedLine.getProperty(keyString).get());
+        assertEquals(19, mergedLine.getPropertyNames().size());
         assertTrue(mergedLine.removeProperty(keyString));
         assertFalse(mergedLine.removeProperty(keyString));
-        assertNull(mergedLine.getProperty(keyString));
-        assertEquals(19, mergedLine.getPropertyNames().size());
-        assertTrue(mergedLine.getBooleanProperty("notFound", true));
-        assertEquals(intValue2, mergedLine.getIntegerProperty("notFound", intValue2));
-        assertEquals(doubleValue2, mergedLine.getDoubleProperty("notFound", doubleValue2));
-        assertEquals(stringValue2, mergedLine.getProperty("notFound", stringValue2));
+        assertFalse(mergedLine.getProperty(keyString).isPresent());
+        assertEquals(18, mergedLine.getPropertyNames().size());
+
+        assertTrue(mergedLine.getBooleanProperty("notFound", true).isPresent());
+        assertTrue(mergedLine.getBooleanProperty("notFound", true).get());
+        assertTrue(mergedLine.getIntegerProperty("notFound", intValue2).isPresent());
+        assertEquals(intValue2, mergedLine.getIntegerProperty("notFound", intValue2).getAsInt());
+        assertTrue(mergedLine.getDoubleProperty("notFound", doubleValue2).isPresent());
+        assertEquals(doubleValue2, mergedLine.getDoubleProperty("notFound", doubleValue2).getAsDouble(), 0.001d);
+        assertTrue(mergedLine.getProperty("notFound", stringValue2).isPresent());
+        assertEquals(stringValue2, mergedLine.getProperty("notFound", stringValue2).get());
     }
 
     @Test

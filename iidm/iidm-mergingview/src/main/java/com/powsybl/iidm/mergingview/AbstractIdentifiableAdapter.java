@@ -9,9 +9,9 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.util.Properties;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -51,47 +51,47 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public Type getPropertyType(String key) {
+    public Properties.Type getPropertyType(String key) {
         return getDelegate().getPropertyType(key);
     }
 
     @Override
-    public String getProperty(String key) {
+    public Optional<String> getProperty(String key) {
         return getDelegate().getProperty(key);
     }
 
     @Override
-    public String getProperty(String key, String defaultValue) {
+    public Optional<String> getProperty(String key, String defaultValue) {
         return getDelegate().getProperty(key, defaultValue);
     }
 
     @Override
-    public Integer getIntegerProperty(String key) {
+    public OptionalInt getIntegerProperty(String key) {
         return getDelegate().getIntegerProperty(key);
     }
 
     @Override
-    public Integer getIntegerProperty(String key, Integer defaultValue) {
+    public OptionalInt getIntegerProperty(String key, Integer defaultValue) {
         return getDelegate().getIntegerProperty(key, defaultValue);
     }
 
     @Override
-    public Double getDoubleProperty(String key) {
+    public OptionalDouble getDoubleProperty(String key) {
         return getDelegate().getDoubleProperty(key);
     }
 
     @Override
-    public Double getDoubleProperty(String key, Double defaultValue) {
+    public OptionalDouble getDoubleProperty(String key, Double defaultValue) {
         return getDelegate().getDoubleProperty(key, defaultValue);
     }
 
     @Override
-    public Boolean getBooleanProperty(String key) {
+    public Optional<Boolean> getBooleanProperty(String key) {
         return getDelegate().getBooleanProperty(key);
     }
 
     @Override
-    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+    public Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue) {
         return getDelegate().getBooleanProperty(key, defaultValue);
     }
 

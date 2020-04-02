@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Properties;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,7 +228,7 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public Type getPropertyType(String key) {
+    public Properties.Type getPropertyType(String key) {
         return index.getNetworkStream()
             .map(n -> n.getPropertyType(key))
             .filter(Objects::nonNull)
@@ -236,47 +237,61 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public String getProperty(String key) {
+    public Optional<String> getProperty(String key) {
         return getProperty(key, null);
     }
 
     @Override
-    public String getProperty(String key, String defaultValue) {
-        Function<Network, String> function = (Network n) -> n.getProperty(key);
-        return getTypedProperty(defaultValue, function);
+    public Optional<String> getProperty(String key, String defaultValue) {
+        Function<Network, String> function = (Network n) -> n.getProperty(key).isPresent() ? n.getProperty(key).get() : null;
+        return Optional.ofNullable(getTypedProperty(defaultValue, function));
     }
 
     @Override
-    public Integer getIntegerProperty(String key) {
+    public OptionalInt getIntegerProperty(String key) {
         return getIntegerProperty(key, null);
     }
 
     @Override
-    public Integer getIntegerProperty(String key, Integer defaultValue) {
-        Function<Network, Integer> function = (Network n) -> n.getIntegerProperty(key);
-        return getTypedProperty(defaultValue, function);
+    public OptionalInt getIntegerProperty(String key, Integer defaultValue) {
+        Function<Network, Integer> function = (Network n) -> n.getIntegerProperty(key).isPresent() ? n.getIntegerProperty(key).getAsInt() : null;
+        Integer value = getTypedProperty(defaultValue, function);
+        OptionalInt returnValue;
+        if (value == null) {
+            returnValue = OptionalInt.empty();
+        } else {
+            returnValue = OptionalInt.of(value);
+        }
+        return returnValue;
     }
 
     @Override
-    public Double getDoubleProperty(String key) {
+    public OptionalDouble getDoubleProperty(String key) {
         return getDoubleProperty(key, null);
     }
 
     @Override
-    public Double getDoubleProperty(String key, Double defaultValue) {
-        Function<Network, Double> function = (Network n) -> n.getDoubleProperty(key);
-        return getTypedProperty(defaultValue, function);
+    public OptionalDouble getDoubleProperty(String key, Double defaultValue) {
+        Function<Network, Double> function = (Network n) -> n.getDoubleProperty(key).isPresent() ? n.getDoubleProperty(key).getAsDouble() : null;
+        Double value = getTypedProperty(defaultValue, function);
+        OptionalDouble returnValue;
+        if (value == null) {
+            returnValue = OptionalDouble.empty();
+        } else {
+            returnValue = OptionalDouble.of(value);
+        }
+        return returnValue;
     }
 
     @Override
-    public Boolean getBooleanProperty(String key) {
+    public Optional<Boolean> getBooleanProperty(String key) {
         return getBooleanProperty(key, null);
     }
 
     @Override
-    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
-        Function<Network, Boolean> function = (Network n) -> n.getBooleanProperty(key);
-        return getTypedProperty(defaultValue, function);
+    public Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue) {
+        Function<Network, Boolean> function = (Network n) -> n.getBooleanProperty(key).isPresent() ? n.getBooleanProperty(key).get() : null;
+        return Optional.ofNullable(getTypedProperty(defaultValue, function));
     }
 
     private <T> T getTypedProperty(T defaultValue, Function<Network, T> function) {

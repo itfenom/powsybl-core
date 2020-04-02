@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.scripting
 import com.powsybl.commons.PowsyblException
 import com.powsybl.commons.extensions.Extension
 import com.powsybl.iidm.network.Identifiable
+import com.powsybl.iidm.network.util.Properties
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,17 +22,21 @@ class IdentifiableExtension {
             extension
         } else {
             switch(self.getPropertyType(name)) {
-                case Identifiable.Type.BOOLEAN:
-                    self.getBooleanProperty(name)
+                case Properties.Type.BOOLEAN:
+                    self.getBooleanProperty(name).orElse(null)
                     break;
-                case Identifiable.Type.DOUBLE:
-                    self.getDoubleProperty(name)
+                case Properties.Type.DOUBLE:
+                    if (self.getDoubleProperty(name).isPresent()) {
+                        self.getDoubleProperty(name).get()
+                    }
                     break;
-                case Identifiable.Type.INTEGER:
-                    self.getIntegerProperty(name)
+                case Properties.Type.INTEGER:
+                    if (self.getIntegerProperty(name).isPresent()) {
+                        self.getIntegerProperty(name).get()
+                    }
                     break;
                 default:
-                    self.getProperty(name)
+                    self.getProperty(name).orElse(null)
             }
         }
     }
@@ -40,17 +45,21 @@ class IdentifiableExtension {
             self.removeProperty(name)
         } else {
             switch(self.getPropertyType(name)) {
-                case Identifiable.Type.BOOLEAN:
-                    self.getBooleanProperty(name)
+                case Properties.Type.BOOLEAN:
+                    self.getBooleanProperty(name).orElse(null)
                     break;
-                case Identifiable.Type.DOUBLE:
-                    self.getDoubleProperty(name)
+                case Properties.Type.DOUBLE:
+                    if (self.getDoubleProperty(name).isPresent()) {
+                        self.getDoubleProperty(name).get()
+                    }
                     break;
-                case Identifiable.Type.INTEGER:
-                    self.getIntegerProperty(name)
+                case Properties.Type.INTEGER:
+                    if (self.getIntegerProperty(name).isPresent()) {
+                        self.getIntegerProperty(name).get()
+                    }
                     break;
                 default:
-                    self.getProperty(name)
+                    self.getProperty(name).orElse(null)
             }
         }
     }

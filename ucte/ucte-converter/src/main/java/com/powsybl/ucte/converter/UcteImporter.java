@@ -697,13 +697,8 @@ public class UcteImporter implements Importer {
     }
 
     private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
-        if (dl1.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY));
-        }
-
-        if (dl2.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperty(ELEMENT_NAME_PROPERTY_KEY));
-        }
+        tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(""));
+        tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(""));
     }
 
     private static void addElementNameProperty(UcteElement ucteElement, Identifiable identifiable) {

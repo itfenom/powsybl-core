@@ -10,6 +10,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
@@ -71,7 +72,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(shunt.getTerminal()).thenReturn(shuntTerminal);
         Mockito.when(shunt.getCurrentSectionCount()).thenReturn(currentSectionCount);
         Mockito.when(shunt.getMaximumSectionCount()).thenReturn(maximumSectionCount);
-        Mockito.when(shunt.getProperty("qMax")).thenReturn(Double.toString(qMax));
+        Mockito.when(shunt.getProperty("qMax")).thenReturn(Optional.of(Double.toString(qMax)));
         Mockito.when(shunt.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
         Mockito.when(shunt.getModel()).thenReturn(shuntModel);
         Mockito.when(shunt.getModel(ShuntCompensatorLinearModel.class)).thenReturn(shuntModel);

@@ -24,7 +24,7 @@ public final class PropertiesXml {
     public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
         if (identifiable.hasProperty()) {
             for (String name : identifiable.getPropertyNames()) {
-                String value = identifiable.getProperty(name);
+                String value = identifiable.getProperty(name).orElse("");
                 context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
                 context.getWriter().writeAttribute(NAME, name);
                 context.getWriter().writeAttribute(VALUE, value);
