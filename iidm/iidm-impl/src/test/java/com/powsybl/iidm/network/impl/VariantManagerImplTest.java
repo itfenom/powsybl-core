@@ -72,62 +72,17 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public Optional<String> getProperty(String key) {
+        public <P> Optional<P> getProperty(String key) {
             return Optional.empty();
         }
 
         @Override
-        public Optional<String> getProperty(String key, String defaultValue) {
+        public <P> Optional<P> getProperty(String key, P defaultValue) {
             return Optional.empty();
         }
 
         @Override
-        public OptionalInt getIntegerProperty(String key) {
-            return OptionalInt.empty();
-        }
-
-        @Override
-        public OptionalInt getIntegerProperty(String key, Integer defaultValue) {
-            return OptionalInt.empty();
-        }
-
-        @Override
-        public OptionalDouble getDoubleProperty(String key) {
-            return OptionalDouble.empty();
-        }
-
-        @Override
-        public OptionalDouble getDoubleProperty(String key, Double defaultValue) {
-            return OptionalDouble.empty();
-        }
-
-        @Override
-        public Optional<Boolean> getBooleanProperty(String key) {
-            return Optional.empty();
-        }
-
-        @Override
-        public Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue) {
-            return Optional.empty();
-        }
-
-        @Override
-        public String setProperty(String key, String value) {
-            return null;
-        }
-
-        @Override
-        public Integer setIntegerProperty(String key, Integer value) {
-            return null;
-        }
-
-        @Override
-        public Double setDoubleProperty(String key, Double value) {
-            return null;
-        }
-
-        @Override
-        public Boolean setBooleanProperty(String key, Boolean value) {
+        public <P> P setProperty(String key, P value) {
             return null;
         }
 

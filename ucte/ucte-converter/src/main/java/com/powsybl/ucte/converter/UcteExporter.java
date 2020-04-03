@@ -161,7 +161,7 @@ public class UcteExporter implements Exporter {
         }
 
         UcteNodeCode ucteNodeCode = context.getNamingStrategy().getUcteNodeCode(bus);
-        String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY).orElse(null);
+        String geographicalName = (String) bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY).orElse(null);
 
         // FIXME(mathbagu): how to initialize active/reactive load and generation: 0 vs NaN vs DEFAULT_MAX_POWER?
         // FIXME(mathbagu): how to find the slack node?
@@ -277,7 +277,7 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, DanglingLine danglingLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(danglingLine);
-        String geographicalName = danglingLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY).orElse(null);
+        String geographicalName = (String) danglingLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY).orElse(null);
 
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName);
         ucteNode.setActiveLoad((float) danglingLine.getP0());
@@ -293,7 +293,7 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, MergedXnode mergedXnode, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(mergedXnode.getCode());
-        String geographicalName = mergedXnode.getExtendable().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY).orElse("");
+        String geographicalName = (String) mergedXnode.getExtendable().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY).orElse("");
 
         convertXNode(ucteNetwork, xnodeCode, geographicalName);
     }
@@ -307,7 +307,7 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
-        String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY).orElse("");
+        String geographicalName = (String) tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY).orElse("");
 
         convertXNode(ucteNetwork, xnodeCode, geographicalName);
     }
@@ -361,7 +361,7 @@ public class UcteExporter implements Exporter {
 
         UcteElementId ucteElementId = context.getNamingStrategy().getUcteElementId(sw);
         UcteElementStatus status = sw.isOpen() ? BUSBAR_COUPLER_OUT_OF_OPERATION : BUSBAR_COUPLER_IN_OPERATION;
-        String elementName = sw.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(null);
+        String elementName = (String) sw.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(null);
 
         UcteLine ucteLine = new UcteLine(ucteElementId, status, 0, 0, 0, null, elementName);
         ucteNetwork.addLine(ucteLine);
@@ -386,7 +386,7 @@ public class UcteExporter implements Exporter {
 
         UcteElementId lineId = context.getNamingStrategy().getUcteElementId(line);
         UcteElementStatus status = line.getTerminal1().isConnected() && line.getTerminal2().isConnected() ? REAL_ELEMENT_IN_OPERATION : REAL_ELEMENT_OUT_OF_OPERATION;
-        String elementName = line.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(null);
+        String elementName = (String) line.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(null);
 
         UcteLine ucteLine = new UcteLine(
                 lineId,
@@ -437,7 +437,7 @@ public class UcteExporter implements Exporter {
 
         // Create half line 1
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine1Name());
-        String elementName1 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1").orElse(null);
+        String elementName1 = (String) line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1").orElse(null);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status,
@@ -450,7 +450,7 @@ public class UcteExporter implements Exporter {
 
         // Create half line2
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine2Name());
-        String elementName2 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2").orElse(null);
+        String elementName2 = (String) line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2").orElse(null);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status,
@@ -481,7 +481,7 @@ public class UcteExporter implements Exporter {
         // Create half line 1
         TieLine.HalfLine half1 = tieLine.getHalf1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(half1.getId());
-        String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1").orElse(null);
+        String elementName1 = (String) tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1").orElse(null);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status,
@@ -495,7 +495,7 @@ public class UcteExporter implements Exporter {
         // Create half line2
         TieLine.HalfLine half2 = tieLine.getHalf2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(half2.getId());
-        String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2").orElse(null);
+        String elementName2 = (String) tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2").orElse(null);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status,
@@ -522,7 +522,7 @@ public class UcteExporter implements Exporter {
 
         // Create line
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(danglingLine);
-        String elementName = danglingLine.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(null);
+        String elementName = (String) danglingLine.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(null);
         double permanentLimit = danglingLine.getCurrentLimits() == null ? DEFAULT_MAX_CURRENT : danglingLine.getCurrentLimits().getPermanentLimit();
 
         UcteLine ucteLine = new UcteLine(
@@ -561,9 +561,9 @@ public class UcteExporter implements Exporter {
     private static void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = twoWindingsTransformer.getTerminal1().isConnected() && twoWindingsTransformer.getTerminal2().isConnected() ? REAL_ELEMENT_IN_OPERATION : REAL_ELEMENT_OUT_OF_OPERATION;
-        String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(null);
+        String elementName = (String) twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY).orElse(null);
         double currentLimits = getPermanentLimit(twoWindingsTransformer);
-        float nominalPower = Float.parseFloat(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY).orElse(null));
+        float nominalPower = Float.parseFloat((String) twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY).orElse(null));
 
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,
@@ -691,7 +691,7 @@ public class UcteExporter implements Exporter {
     private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw) {
         if (sw.hasProperty(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
-                ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY).orElse("")));
+                ucteLine.setCurrentLimit(Integer.parseInt((String) sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY).orElse("")));
             } catch (NumberFormatException exception) {
                 ucteLine.setCurrentLimit((int) DEFAULT_MAX_CURRENT);
                 LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), DEFAULT_MAX_CURRENT);

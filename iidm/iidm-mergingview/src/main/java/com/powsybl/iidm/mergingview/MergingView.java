@@ -237,60 +237,13 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public Optional<String> getProperty(String key) {
+    public <P> Optional<P> getProperty(String key) {
         return getProperty(key, null);
     }
 
     @Override
-    public Optional<String> getProperty(String key, String defaultValue) {
-        Function<Network, String> function = (Network n) -> n.getProperty(key).isPresent() ? n.getProperty(key).get() : null;
-        return Optional.ofNullable(getTypedProperty(defaultValue, function));
-    }
-
-    @Override
-    public OptionalInt getIntegerProperty(String key) {
-        return getIntegerProperty(key, null);
-    }
-
-    @Override
-    public OptionalInt getIntegerProperty(String key, Integer defaultValue) {
-        Function<Network, Integer> function = (Network n) -> n.getIntegerProperty(key).isPresent() ? n.getIntegerProperty(key).getAsInt() : null;
-        Integer value = getTypedProperty(defaultValue, function);
-        OptionalInt returnValue;
-        if (value == null) {
-            returnValue = OptionalInt.empty();
-        } else {
-            returnValue = OptionalInt.of(value);
-        }
-        return returnValue;
-    }
-
-    @Override
-    public OptionalDouble getDoubleProperty(String key) {
-        return getDoubleProperty(key, null);
-    }
-
-    @Override
-    public OptionalDouble getDoubleProperty(String key, Double defaultValue) {
-        Function<Network, Double> function = (Network n) -> n.getDoubleProperty(key).isPresent() ? n.getDoubleProperty(key).getAsDouble() : null;
-        Double value = getTypedProperty(defaultValue, function);
-        OptionalDouble returnValue;
-        if (value == null) {
-            returnValue = OptionalDouble.empty();
-        } else {
-            returnValue = OptionalDouble.of(value);
-        }
-        return returnValue;
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanProperty(String key) {
-        return getBooleanProperty(key, null);
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue) {
-        Function<Network, Boolean> function = (Network n) -> n.getBooleanProperty(key).isPresent() ? n.getBooleanProperty(key).get() : null;
+    public <P> Optional<P> getProperty(String key, P defaultValue) {
+        Function<Network, P> function = (Network n) -> n.getProperty(key).isPresent() ? (P) n.getProperty(key).get() : null;
         return Optional.ofNullable(getTypedProperty(defaultValue, function));
     }
 
@@ -303,27 +256,11 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public String setProperty(String key, String value) {
+    public <P> P setProperty(String key, P value) {
+        Objects.requireNonNull(key, "Property name is null");
+        Objects.requireNonNull(value, "Property value is null");
         index.getNetworkStream().forEach(n -> n.setProperty(key, value));
         return null;
-    }
-
-    @Override
-    public Integer setIntegerProperty(String key, Integer value) {
-        index.getNetworkStream().forEach(n -> n.setIntegerProperty(key, value));
-        return null;
-    }
-
-    @Override
-    public Double setDoubleProperty(String key, Double value) {
-        index.getNetworkStream().forEach(n -> n.setDoubleProperty(key, value));
-        return null;
-    }
-
-    @Override
-    public Boolean setBooleanProperty(String key, Boolean value) {
-        index.getNetworkStream().forEach(n -> n.setBooleanProperty(key, value));
-        return false;
     }
 
     @Override

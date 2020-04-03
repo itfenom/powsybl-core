@@ -13,8 +13,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.Properties;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -415,8 +413,7 @@ class MergedLine implements Line {
 
     @Override
     public Properties.Type getPropertyType(final String key) {
-        Pair<Properties.Type, Object> val = properties.get(key);
-        return val != null ? val.getKey() : null;
+        return properties.getPropertyType(key);
     }
 
     @Override
@@ -431,71 +428,22 @@ class MergedLine implements Line {
     }
 
     @Override
-    public Optional<String> getProperty(final String key) {
+    public <P> Optional<P> getProperty(final String key) {
         return properties.getProperty(key);
     }
 
     @Override
-    public Optional<String> getProperty(final String key, final String defaultValue) {
+    public <P> Optional<P> getProperty(final String key, final P defaultValue) {
         return properties.getProperty(key, defaultValue);
     }
 
     @Override
-    public OptionalInt getIntegerProperty(final String key) {
-        return properties.getIntegerProperty(key);
-    }
-
-    @Override
-    public OptionalInt getIntegerProperty(final String key, final Integer defaultValue) {
-        return properties.getIntegerProperty(key, defaultValue);
-    }
-
-    @Override
-    public OptionalDouble getDoubleProperty(final String key) {
-        return properties.getDoubleProperty(key);
-    }
-
-    @Override
-    public OptionalDouble getDoubleProperty(final String key, final Double defaultValue) {
-        return properties.getDoubleProperty(key, defaultValue);
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanProperty(final String key) {
-        return properties.getBooleanProperty(key);
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanProperty(final String key, final Boolean defaultValue) {
-        return properties.getBooleanProperty(key, defaultValue);
-    }
-
-    @Override
-    public String setProperty(final String key, final String value) {
-        Pair<Properties.Type, Object> val = new ImmutablePair<>(Properties.Type.STRING, value);
-        Pair<Properties.Type, Object> oldVal = properties.put(key, val);
-        return oldVal != null ? (String) oldVal.getValue() : null;
-    }
-
-    @Override
-    public Integer setIntegerProperty(final String key, final Integer value) {
-        Pair<Properties.Type, Object> val = new ImmutablePair<>(Properties.Type.INTEGER, value);
-        Pair<Properties.Type, Object> oldVal = properties.put(key, val);
-        return oldVal != null ? (Integer) oldVal.getValue() : null;
-    }
-
-    @Override
-    public Double setDoubleProperty(final String key, final Double value) {
-        Pair<Properties.Type, Object> val = new ImmutablePair<>(Properties.Type.DOUBLE, value);
-        Pair<Properties.Type, Object> oldVal = properties.put(key, val);
-        return oldVal != null ? (Double) oldVal.getValue() : null;
-    }
-
-    @Override
-    public Boolean setBooleanProperty(final String key, final Boolean value) {
-        Pair<Properties.Type, Object> val = new ImmutablePair<>(Properties.Type.BOOLEAN, value);
-        Pair<Properties.Type, Object> oldVal = properties.put(key, val);
-        return oldVal != null ? (Boolean) oldVal.getValue() : null;
+    public <P> P setProperty(final String key, final P value) {
+        Objects.requireNonNull(key, "Property name is null");
+        Objects.requireNonNull(value, "Property value is null");
+        Properties.Property newValue = new Properties.Property(value);
+        Properties.Property oldValue = properties.put(key, newValue);
+        return oldValue != null && Properties.isSameType(oldValue, newValue) ? (P) oldValue.getValue() : null;
     }
 
     @Override
@@ -505,7 +453,7 @@ class MergedLine implements Line {
 
     @Override
     public Boolean removeProperty(final String key) {
-        Pair<Properties.Type, Object> removedVal = properties.remove(key);
+        Properties.Property removedVal = properties.remove(key);
         return removedVal != null;
     }
 

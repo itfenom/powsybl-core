@@ -12,8 +12,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Properties;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -154,10 +152,6 @@ public abstract class AbstractNetworkTest {
         assertEquals(0, busCalc.getConnectedComponent().getNum());
 
         // Changes listener
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementReplaced(any(), anyString(),
-                any(), any());
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
 
         // Identifiable properties
@@ -170,10 +164,8 @@ public abstract class AbstractNetworkTest {
         // Test without listeners registered & same values
         busCalc.setProperty("listeners", "no listeners");
         verifyNoMoreInteractions(mockedListener);
-        verifyNoMoreInteractions(exceptionListener);
         // Add observer changes to current network
         network.addListener(mockedListener);
-        network.addListener(exceptionListener);
         // Test with listeners registered
         busCalc.setProperty(key, value);
         assertTrue(busCalc.hasProperty());
@@ -183,17 +175,15 @@ public abstract class AbstractNetworkTest {
         assertTrue(busCalc.getProperty("invalid", "default").isPresent());
         assertEquals("default", busCalc.getProperty("invalid", "default").get());
         assertEquals(2, busCalc.getPropertyNames().size());
-        Pair<Properties.Type, Object> val1 = new ImmutablePair<>(Properties.Type.STRING, value);
 
         // Check notification done
         verify(mockedListener, times(1))
-               .onElementAdded(busCalc, "properties[" + key + "]", val1);
+               .onElementAdded(any(BusbarSection.class), anyString(), any(Properties.Property.class));
         // Check no notification on same property
         String value2 = "ValueTest2";
-        Pair<Properties.Type, Object> val2 = new ImmutablePair<>(Properties.Type.STRING, value2);
         busCalc.setProperty(key, value2);
         verify(mockedListener, times(1))
-               .onElementReplaced(busCalc, "properties[" + key + "]", val1, val2);
+               .onElementReplaced(any(BusbarSection.class), anyString(), any(Properties.Property.class), any(Properties.Property.class));
         // Check no notification on same property
         busCalc.setProperty(key, value2);
         verifyNoMoreInteractions(mockedListener);
@@ -494,32 +484,32 @@ public abstract class AbstractNetworkTest {
         double doubleValue2 = 51d;
         String stringValue2 = "test2";
 
-        network.setBooleanProperty(keyBool, true);
-        network.setIntegerProperty(keyInt, intValue);
-        network.setDoubleProperty(keyDouble, doubleValue);
+        network.setProperty(keyBool, true);
+        network.setProperty(keyInt, intValue);
+        network.setProperty(keyDouble, doubleValue);
         network.setProperty(keyString, stringValue);
 
-        assertTrue(network.getBooleanProperty(keyBool).isPresent());
-        assertTrue(network.getBooleanProperty(keyBool).get());
-        assertTrue(network.getIntegerProperty(keyInt).isPresent());
-        assertEquals(intValue, network.getIntegerProperty(keyInt).getAsInt());
-        assertTrue(network.getDoubleProperty(keyDouble).isPresent());
-        assertEquals(doubleValue, network.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(network.getProperty(keyBool).isPresent());
+        assertTrue((boolean) network.getProperty(keyBool).get());
+        assertTrue(network.getProperty(keyInt).isPresent());
+        assertEquals(intValue, network.getProperty(keyInt).get());
+        assertTrue(network.getProperty(keyDouble).isPresent());
+        assertEquals(doubleValue, (double) network.getProperty(keyDouble).get(), 0.001d);
         assertTrue(network.getProperty(keyString).isPresent());
         assertEquals(stringValue, network.getProperty(keyString).get());
         assertEquals(Properties.Type.STRING, network.getPropertyType(keyString));
         assertEquals(4, network.getPropertyNames().size());
 
-        network.setBooleanProperty(keyBool, false);
-        network.setIntegerProperty(keyInt, intValue2);
-        network.setDoubleProperty(keyDouble, doubleValue2);
+        network.setProperty(keyBool, false);
+        network.setProperty(keyInt, intValue2);
+        network.setProperty(keyDouble, doubleValue2);
         network.setProperty(keyString, stringValue2);
-        assertTrue(network.getBooleanProperty(keyBool).isPresent());
-        assertFalse(network.getBooleanProperty(keyBool).get());
-        assertTrue(network.getIntegerProperty(keyInt).isPresent());
-        assertEquals(intValue2, network.getIntegerProperty(keyInt).getAsInt());
-        assertTrue(network.getDoubleProperty(keyDouble).isPresent());
-        assertEquals(doubleValue2, network.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(network.getProperty(keyBool).isPresent());
+        assertFalse((boolean) network.getProperty(keyBool).get());
+        assertTrue(network.getProperty(keyInt).isPresent());
+        assertEquals(intValue2, network.getProperty(keyInt).get());
+        assertTrue(network.getProperty(keyDouble).isPresent());
+        assertEquals(doubleValue2, (double) network.getProperty(keyDouble).get(), 0.001d);
         assertTrue(network.getProperty(keyString).isPresent());
         assertEquals(stringValue2, network.getProperty(keyString).get());
         assertEquals(4, network.getPropertyNames().size());
@@ -528,12 +518,12 @@ public abstract class AbstractNetworkTest {
         assertFalse(network.getProperty(keyString).isPresent());
         assertEquals(3, network.getPropertyNames().size());
 
-        assertTrue(network.getBooleanProperty("notFound", true).isPresent());
-        assertTrue(network.getBooleanProperty("notFound", true).get());
-        assertTrue(network.getIntegerProperty("notFound", intValue2).isPresent());
-        assertEquals(intValue2, network.getIntegerProperty("notFound", intValue2).getAsInt());
-        assertTrue(network.getDoubleProperty("notFound", doubleValue2).isPresent());
-        assertEquals(doubleValue2, network.getDoubleProperty("notFound", doubleValue2).getAsDouble(), 0.001d);
+        assertTrue(network.getProperty("notFound", true).isPresent());
+        assertTrue(network.getProperty("notFound", true).get());
+        assertTrue(network.getProperty("notFound", intValue2).isPresent());
+        assertEquals(intValue2, (int) network.getProperty("notFound", intValue2).get());
+        assertTrue(network.getProperty("notFound", doubleValue2).isPresent());
+        assertEquals(doubleValue2, network.getProperty("notFound", doubleValue2).get(), 0.001d);
         assertTrue(network.getProperty("notFound", stringValue2).isPresent());
         assertEquals(stringValue2, network.getProperty("notFound", stringValue2).get());
 

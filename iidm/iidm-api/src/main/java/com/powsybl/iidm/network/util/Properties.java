@@ -1,6 +1,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -17,21 +18,73 @@ public class Properties {
     private static final String INCONSISTENCY_WARN_EMPTY_SIDE_2 = "Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'";
     private static final String INCONSISTENCY_ERROR_BOTH_SIDES = "Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line";
 
-    private final Map<String, Pair<Type, Object>> propertyList = new HashMap<>();
+    public static class Property {
+        private final Pair<Type, Object> entry;
+
+        public Property(Type type, Object value) {
+            entry = new ImmutablePair<>(type, value);
+        }
+
+        public Property(Object value) {
+            Type type;
+            if (value instanceof String) {
+                type = Type.STRING;
+            } else if (value instanceof Boolean) {
+                type = Type.BOOLEAN;
+            } else if (value instanceof Integer) {
+                type = Type.INTEGER;
+            } else if (value instanceof Double) {
+                type = Type.DOUBLE;
+            } else {
+                throw new PowsyblException("Invalid property type, only available types are : STRING, INTEGER, DOUBLE, BOOLEAN");
+            }
+            entry = new ImmutablePair<>(type, value);
+        }
+
+        public Type getType() {
+            return entry.getKey();
+        }
+
+        public Object getValue() {
+            return entry.getValue();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Property property = (Property) o;
+            return Objects.equals(entry, property.entry);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(entry);
+        }
+
+        @Override
+        public String toString() {
+            return "Property{" +
+                    "entry=" + entry +
+                    '}';
+        }
+    }
+
+    private final Map<String, Property> propertyList = new HashMap<>();
 
     public enum Type {
         STRING, INTEGER, DOUBLE, BOOLEAN;
     }
 
-    public Pair<Type, Object> get(String key) {
-        return propertyList.get(key);
-    }
-
-    public Pair<Type, Object> put(String key, Pair<Type, Object> value) {
+    public Property put(String key, Property value) {
         return propertyList.put(key, value);
     }
 
-    public Pair<Type, Object> remove(String key) {
+    public Property remove(String key) {
         return propertyList.remove(key);
     }
 
@@ -43,199 +96,69 @@ public class Properties {
         return propertyList.containsKey(key);
     }
 
-    public Map<String, Pair<Type, Object>> getPropertyList() {
+    public Map<String, Property> getPropertyList() {
         return Collections.unmodifiableMap(propertyList);
     }
 
     public Type getPropertyType(String key) {
-        Pair<Type, Object> val = propertyList.get(key);
-        return val != null ? val.getKey() : null;
+        Property val = propertyList.get(key);
+        return val != null ? val.getType() : null;
     }
 
-    public Optional<String> getProperty(String key) {
-        Pair<Properties.Type, Object> val = propertyList.get(key);
-        Optional<String> returnValue;
-        if (val == null || val.getValue() == null) {
-            returnValue = Optional.empty();
-        } else {
-            returnValue = Optional.of((String) val.getValue());
+    public <P> Optional<P> getProperty(String key) {
+        Property val = propertyList.get(key);
+        P returnValue = null;
+        if (val != null && val.getValue() != null) {
+            returnValue = (P) val.getValue();
         }
-        return returnValue;
+        return Optional.ofNullable(returnValue);
     }
 
-    public Optional<String> getProperty(String key, String defaultValue) {
-        Pair<Properties.Type, Object> val = propertyList.get(key);
-        Optional<String> returnValue;
-        if (val == null && defaultValue == null) {
-            returnValue = Optional.empty();
-        } else {
-            returnValue = Optional.of(isValueFound(val, Type.STRING) ? (String) val.getValue() : defaultValue);
-        }
-        return returnValue;
+    public <P> Optional<P> getProperty(String key, P defaultValue) {
+        Optional<P> val = getProperty(key);
+        return Optional.of(val.orElse(defaultValue));
     }
 
-    public OptionalInt getIntegerProperty(String key) {
-        Pair<Properties.Type, Object> val = propertyList.get(key);
-        OptionalInt returnValue;
-        if (val == null || val.getValue() == null) {
-            returnValue = OptionalInt.empty();
-        } else {
-            returnValue = OptionalInt.of((Integer) val.getValue());
-        }
-        return returnValue;
-    }
-
-    public OptionalInt getIntegerProperty(String key, Integer defaultValue) {
-        Pair<Properties.Type, Object> val = propertyList.get(key);
-        OptionalInt returnValue;
-        if (val == null && defaultValue == null) {
-            returnValue = OptionalInt.empty();
-        } else {
-            returnValue = OptionalInt.of(isValueFound(val, Type.INTEGER) ? (Integer) val.getValue() : defaultValue);
-        }
-        return returnValue;
-    }
-
-    public OptionalDouble getDoubleProperty(String key) {
-        Pair<Properties.Type, Object> val = propertyList.get(key);
-        OptionalDouble returnValue;
-        if (val == null || val.getValue() == null) {
-            returnValue = OptionalDouble.empty();
-        } else {
-            returnValue = OptionalDouble.of((Double) val.getValue());
-        }
-        return returnValue;
-    }
-
-    public OptionalDouble getDoubleProperty(String key, Double defaultValue) {
-        Pair<Properties.Type, Object> val = propertyList.get(key);
-        OptionalDouble returnValue;
-        if (val == null && defaultValue == null) {
-            returnValue = OptionalDouble.empty();
-        } else {
-            returnValue = OptionalDouble.of(isValueFound(val, Type.DOUBLE) ? (Double) val.getValue() : defaultValue);
-        }
-        return returnValue;
-    }
-
-    public Optional<Boolean> getBooleanProperty(String key) {
-        Pair<Properties.Type, Object> val = propertyList.get(key);
-        Optional<Boolean> returnValue;
-        if (val == null || val.getValue() == null) {
-            returnValue = Optional.empty();
-        } else {
-            returnValue = Optional.of((Boolean) val.getValue());
-        }
-        return returnValue;
-    }
-
-    public Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue) {
-        Pair<Properties.Type, Object> val = propertyList.get(key);
-        Optional<Boolean> returnValue;
-        if (val == null && defaultValue == null) {
-            returnValue = Optional.empty();
-        } else {
-            returnValue = Optional.of(isValueFound(val, Type.BOOLEAN) ? (Boolean) val.getValue() : defaultValue);
-        }
-        return returnValue;
-    }
-
-    private boolean isValueFound(Pair<Type, Object> value, Type type) {
-        return value != null && type.equals(value.getKey());
-    }
-
-    public static boolean isSameType(Pair<Type, Object> oldValue, Pair<Type, Object> newValue) {
-        return newValue.getKey().equals(oldValue.getKey());
+    public static boolean isSameType(Properties.Property oldValue, Properties.Property newValue) {
+        return newValue.getType() == oldValue.getType();
     }
 
     public Set<String> keySet() {
         return propertyList.keySet();
     }
 
-    private Object getProperty(DanglingLine dl, String prop) {
-        Object property = null;
-        switch (dl.getPropertyType(prop)) {
-            case STRING:
-                property = dl.getProperty(prop);
-                break;
-            case INTEGER:
-                property = dl.getIntegerProperty(prop);
-                break;
-            case DOUBLE:
-                property = dl.getDoubleProperty(prop);
-                break;
-            case BOOLEAN:
-                property = dl.getBooleanProperty(prop);
-                break;
-            default:
-                break;
-        }
-        return property;
-    }
-
-    private void setProperty(Map<String, Pair<Type, Object>> properties, DanglingLine dl, String prop) {
-        Type type = dl.getPropertyType(prop);
-        switch (type) {
-            case STRING:
-                properties.put(prop, new ImmutablePair<>(type, ((Optional) getProperty(dl, prop)).get()));
-                break;
-            case INTEGER:
-                properties.put(prop, new ImmutablePair<>(type, ((OptionalInt) getProperty(dl, prop)).getAsInt()));
-                break;
-            case DOUBLE:
-                properties.put(prop, new ImmutablePair<>(type, ((OptionalDouble) getProperty(dl, prop)).getAsDouble()));
-                break;
-            case BOOLEAN:
-                properties.put(prop, new ImmutablePair<>(type, ((Optional) getProperty(dl, prop)).get()));
-                break;
-            default:
-                break;
-        }
-    }
-
-    public void mergeProperty(DanglingLine dl1, DanglingLine dl2, String prop, Type type) {
-        Object dl1Property = getProperty(dl1, prop);
-        Object dl2Property = getProperty(dl2, prop);
+    public void mergeProperty(DanglingLine dl1, DanglingLine dl2, String name, Type type) {
+        Optional dl1Property = dl1.getProperty(name);
+        Optional dl2Property = dl2.getProperty(name);
 
         if (Objects.equals(dl1Property, dl2Property)) {
-            if (dl1Property instanceof Optional && ((Optional) dl1Property).isPresent()) {
-                propertyList.put(prop, new ImmutablePair<>(type, ((Optional) dl1Property).get()));
-            } else if (dl1Property instanceof OptionalInt && ((OptionalInt) dl1Property).isPresent()) {
-                propertyList.put(prop, new ImmutablePair<>(type, ((OptionalInt) dl1Property).getAsInt()));
-            } else if (dl1Property instanceof OptionalDouble && ((OptionalDouble) dl1Property).isPresent()) {
-                propertyList.put(prop, new ImmutablePair<>(type, ((OptionalDouble) dl1Property).getAsDouble()));
+            if (dl1Property.isPresent()) {
+                put(name, new Property(type, dl1Property.get()));
             }
-        } else if (dl1Property instanceof Optional && dl2Property instanceof Optional && ((Optional) dl1Property).isPresent() &&
-            (!((Optional) dl2Property).isPresent() || Type.STRING.equals(type) &&  ((Optional) dl2Property).get().toString().isEmpty())) {
-            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_2, prop, ((Optional) dl1Property).get());
-            propertyList.put(prop, new ImmutablePair<>(type, ((Optional) dl1Property).get()));
-        } else if (dl1Property instanceof Optional && dl2Property instanceof Optional && ((Optional) dl2Property).isPresent() &&
-            (!((Optional) dl1Property).isPresent() || Type.STRING.equals(type) && ((Optional) dl1Property).get().toString().isEmpty())) {
-            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_1, prop, ((Optional) dl2Property).get());
-            propertyList.put(prop, new ImmutablePair<>(type, ((Optional) dl2Property).get()));
-        } else if (dl1Property instanceof OptionalInt && dl2Property instanceof OptionalInt && ((OptionalInt) dl1Property).isPresent() && !((OptionalInt) dl2Property).isPresent()) {
-            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_2, prop, ((OptionalInt) dl1Property).getAsInt());
-            propertyList.put(prop, new ImmutablePair<>(type, ((OptionalInt) dl1Property).getAsInt()));
-        } else if (dl1Property instanceof OptionalInt && dl2Property instanceof OptionalInt && !((OptionalInt) dl1Property).isPresent() && ((OptionalInt) dl2Property).isPresent()) {
-            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_1, prop, ((OptionalInt) dl2Property).getAsInt());
-            propertyList.put(prop, new ImmutablePair<>(type, ((OptionalInt) dl2Property).getAsInt()));
-        } else if (dl1Property instanceof OptionalDouble && dl2Property instanceof OptionalDouble && ((OptionalDouble) dl1Property).isPresent() && !((OptionalDouble) dl2Property).isPresent()) {
-            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_2, prop, ((OptionalDouble) dl1Property).getAsDouble());
-            propertyList.put(prop, new ImmutablePair<>(type, ((OptionalDouble) dl1Property).getAsDouble()));
-        } else if (dl1Property instanceof OptionalDouble && dl2Property instanceof OptionalDouble && !((OptionalDouble) dl1Property).isPresent() && ((OptionalDouble) dl2Property).isPresent()) {
-            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_1, prop, ((OptionalDouble) dl2Property).getAsDouble());
-            propertyList.put(prop, new ImmutablePair<>(type, ((OptionalDouble) dl2Property).getAsDouble()));
+        } else if (dl1Property.isPresent() && (!dl2Property.isPresent() ||
+            dl2.getPropertyType(name) == Type.STRING && ((String) dl2Property.get()).isEmpty())) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_2, name, dl1Property.get());
+            put(name, new Property(type, dl1Property.get()));
+        } else if (dl2Property.isPresent() && (!dl1Property.isPresent() ||
+            dl2.getPropertyType(name) == Type.STRING && ((String) dl1Property.get()).isEmpty())) {
+            LOGGER.warn(INCONSISTENCY_WARN_EMPTY_SIDE_1, name, dl2Property.get());
+            put(name, new Property(type, dl2Property.get()));
         } else {
-            LOGGER.error(INCONSISTENCY_ERROR_BOTH_SIDES, prop, dl1Property, dl2Property);
+            LOGGER.error(INCONSISTENCY_ERROR_BOTH_SIDES, name, dl1Property, dl2Property);
         }
+    }
+
+    private void setDanglingLineProperty(Map<String, Property> properties, DanglingLine dl, String name) {
+        Type type = dl.getPropertyType(name);
+        dl.getProperty(name).ifPresent(o -> properties.put(name, new Property(type, o)));
     }
 
     public void mergeProperties(DanglingLine dl1, DanglingLine dl2) {
         Set<String> dl1Properties = dl1.getPropertyNames();
         Set<String> dl2Properties = dl2.getPropertyNames();
         Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> setProperty(propertyList, dl1, prop));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> setProperty(propertyList, dl2, prop));
+        Sets.difference(dl1Properties, commonProperties).forEach(prop -> setDanglingLineProperty(propertyList, dl1, prop));
+        Sets.difference(dl2Properties, commonProperties).forEach(prop -> setDanglingLineProperty(propertyList, dl2, prop));
         commonProperties.forEach(prop -> {
             if (dl1.getPropertyType(prop).equals(dl2.getPropertyType(prop))) {
                 mergeProperty(dl1, dl2, prop, dl1.getPropertyType(prop));

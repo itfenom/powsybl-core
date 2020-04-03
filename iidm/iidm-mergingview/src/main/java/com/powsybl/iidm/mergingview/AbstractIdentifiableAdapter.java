@@ -56,63 +56,18 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public Optional<String> getProperty(String key) {
+    public <P> Optional<P> getProperty(String key) {
         return getDelegate().getProperty(key);
     }
 
     @Override
-    public Optional<String> getProperty(String key, String defaultValue) {
+    public <P> Optional<P> getProperty(String key, P defaultValue) {
         return getDelegate().getProperty(key, defaultValue);
     }
 
     @Override
-    public OptionalInt getIntegerProperty(String key) {
-        return getDelegate().getIntegerProperty(key);
-    }
-
-    @Override
-    public OptionalInt getIntegerProperty(String key, Integer defaultValue) {
-        return getDelegate().getIntegerProperty(key, defaultValue);
-    }
-
-    @Override
-    public OptionalDouble getDoubleProperty(String key) {
-        return getDelegate().getDoubleProperty(key);
-    }
-
-    @Override
-    public OptionalDouble getDoubleProperty(String key, Double defaultValue) {
-        return getDelegate().getDoubleProperty(key, defaultValue);
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanProperty(String key) {
-        return getDelegate().getBooleanProperty(key);
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue) {
-        return getDelegate().getBooleanProperty(key, defaultValue);
-    }
-
-    @Override
-    public String setProperty(String key, String value) {
+    public <P> P setProperty(String key, P value) {
         return getDelegate().setProperty(key, value);
-    }
-
-    @Override
-    public Integer setIntegerProperty(String key, Integer value) {
-        return getDelegate().setIntegerProperty(key, value);
-    }
-
-    @Override
-    public Double setDoubleProperty(String key, Double value) {
-        return getDelegate().setDoubleProperty(key, value);
-    }
-
-    @Override
-    public Boolean setBooleanProperty(String key, Boolean value) {
-        return getDelegate().setBooleanProperty(key, value);
     }
 
     @Override

@@ -80,32 +80,32 @@ public class SubstationAdapterTest {
         double doubleValue2 = 51d;
         String stringValue2 = "test2";
 
-        substation.setBooleanProperty(keyBool, true);
-        substation.setIntegerProperty(keyInt, intValue);
-        substation.setDoubleProperty(keyDouble, doubleValue);
+        substation.setProperty(keyBool, true);
+        substation.setProperty(keyInt, intValue);
+        substation.setProperty(keyDouble, doubleValue);
         substation.setProperty(keyString, stringValue);
 
-        assertTrue(substation.getBooleanProperty(keyBool).isPresent());
-        assertTrue(substation.getBooleanProperty(keyBool).get());
-        assertTrue(substation.getIntegerProperty(keyInt).isPresent());
-        assertEquals(intValue, substation.getIntegerProperty(keyInt).getAsInt());
-        assertTrue(substation.getDoubleProperty(keyDouble).isPresent());
-        assertEquals(doubleValue, substation.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(substation.getProperty(keyBool).isPresent());
+        assertTrue((boolean) substation.getProperty(keyBool).get());
+        assertTrue(substation.getProperty(keyInt).isPresent());
+        assertEquals(intValue, substation.getProperty(keyInt).get());
+        assertTrue(substation.getProperty(keyDouble).isPresent());
+        assertEquals(doubleValue, (double) substation.getProperty(keyDouble).get(), 0.001d);
         assertTrue(substation.getProperty(keyString).isPresent());
         assertEquals(stringValue, substation.getProperty(keyString).get());
         assertEquals(Properties.Type.STRING, substation.getPropertyType(keyString));
         assertEquals(5, substation.getPropertyNames().size());
 
-        substation.setBooleanProperty(keyBool, false);
-        substation.setIntegerProperty(keyInt, intValue2);
-        substation.setDoubleProperty(keyDouble, doubleValue2);
+        substation.setProperty(keyBool, false);
+        substation.setProperty(keyInt, intValue2);
+        substation.setProperty(keyDouble, doubleValue2);
         substation.setProperty(keyString, stringValue2);
-        assertTrue(substation.getBooleanProperty(keyBool).isPresent());
-        assertFalse(substation.getBooleanProperty(keyBool).get());
-        assertTrue(substation.getIntegerProperty(keyInt).isPresent());
-        assertEquals(intValue2, substation.getIntegerProperty(keyInt).getAsInt());
-        assertTrue(substation.getDoubleProperty(keyDouble).isPresent());
-        assertEquals(doubleValue2, substation.getDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+        assertTrue(substation.getProperty(keyBool).isPresent());
+        assertFalse((boolean) substation.getProperty(keyBool).get());
+        assertTrue(substation.getProperty(keyInt).isPresent());
+        assertEquals(intValue2, substation.getProperty(keyInt).get());
+        assertTrue(substation.getProperty(keyDouble).isPresent());
+        assertEquals(doubleValue2, (double) substation.getProperty(keyDouble).get(), 0.001d);
         assertTrue(substation.getProperty(keyString).isPresent());
         assertEquals(stringValue2, substation.getProperty(keyString).get());
         assertEquals(5, substation.getPropertyNames().size());
@@ -114,12 +114,12 @@ public class SubstationAdapterTest {
         assertFalse(substation.getProperty(keyString).isPresent());
         assertEquals(4, substation.getPropertyNames().size());
 
-        assertTrue(substation.getBooleanProperty("notFound", true).isPresent());
-        assertTrue(substation.getBooleanProperty("notFound", true).get());
-        assertTrue(substation.getIntegerProperty("notFound", intValue2).isPresent());
-        assertEquals(intValue2, substation.getIntegerProperty("notFound", intValue2).getAsInt());
-        assertTrue(substation.getDoubleProperty("notFound", doubleValue2).isPresent());
-        assertEquals(doubleValue2, substation.getDoubleProperty("notFound", doubleValue2).getAsDouble(), 0.001d);
+        assertTrue(substation.getProperty("notFound", true).isPresent());
+        assertTrue(substation.getProperty("notFound", true).get());
+        assertTrue(substation.getProperty("notFound", intValue2).isPresent());
+        assertEquals(intValue2, (int) substation.getProperty("notFound", intValue2).get());
+        assertTrue(substation.getProperty("notFound", doubleValue2).isPresent());
+        assertEquals(doubleValue2, substation.getProperty("notFound", doubleValue2).get(), 0.001d);
         assertTrue(substation.getProperty("notFound", stringValue2).isPresent());
         assertEquals(stringValue2, substation.getProperty("notFound", stringValue2).get());
 

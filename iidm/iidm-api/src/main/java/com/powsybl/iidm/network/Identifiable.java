@@ -41,7 +41,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Get properties associated to the object.
      *
-     * @deprecated Use {@link #getProperty(String)} & {@link #setProperty(String, String)} instead.
+     * @deprecated Use {@link #getProperty(String)} & {@link #setProperty(String, Object)} instead.
      */
     @Deprecated
     default Properties getProperties() {
@@ -56,17 +56,17 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Get property associated to specified key.
      */
-    Optional<String> getProperty(String key);
+    <P> Optional<P> getProperty(String key);
 
     /**
      * Get property associated to specified key, with default value.
      */
-    Optional<String> getProperty(String key, String defaultValue);
+    <P> Optional<P> getProperty(String key, P defaultValue);
 
     /**
      * Set property value associated to specified key.
      */
-    String setProperty(String key, String value);
+    <P> P setProperty(String key, P value);
 
     /**
      * Get properties key values.
@@ -77,42 +77,6 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * Get the type of the property associated to specified key
      */
     com.powsybl.iidm.network.util.Properties.Type getPropertyType(String key);
-
-    /**
-     * Get property associated to specified key as an Integer.
-     */
-    OptionalInt getIntegerProperty(String key);
-
-    OptionalInt getIntegerProperty(String key, Integer defaultValue);
-
-    /**
-     * Get property associated to specified key as a Double.
-     */
-    OptionalDouble getDoubleProperty(String key);
-
-    OptionalDouble getDoubleProperty(String key, Double defaultValue);
-
-    /**
-     * Get property associated to specified key as a Boolean.
-     */
-    Optional<Boolean> getBooleanProperty(String key);
-
-    Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue);
-
-    /**
-     * Set Integer property value associated to specified key.
-     */
-    Integer setIntegerProperty(String key, Integer value);
-
-    /**
-     * Set Double property value associated to specified key.
-     */
-    Double setDoubleProperty(String key, Double value);
-
-    /**
-     * Set Boolean property value associated to specified key.
-     */
-    Boolean setBooleanProperty(String key, Boolean value);
 
     /**
      * Remove property associated to specified key.

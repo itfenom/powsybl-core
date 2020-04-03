@@ -23,16 +23,16 @@ class IdentifiableExtension {
         } else {
             switch(self.getPropertyType(name)) {
                 case Properties.Type.BOOLEAN:
-                    self.getBooleanProperty(name).orElse(null)
+                    self.getProperty(name).orElse(null)
                     break;
                 case Properties.Type.DOUBLE:
-                    if (self.getDoubleProperty(name).isPresent()) {
-                        self.getDoubleProperty(name).get()
+                    if (self.getProperty(name).isPresent()) {
+                        self.getProperty(name).get()
                     }
                     break;
                 case Properties.Type.INTEGER:
-                    if (self.getIntegerProperty(name).isPresent()) {
-                        self.getIntegerProperty(name).get()
+                    if (self.getProperty(name).isPresent()) {
+                        self.getProperty(name).get()
                     }
                     break;
                 default:
@@ -46,16 +46,16 @@ class IdentifiableExtension {
         } else {
             switch(self.getPropertyType(name)) {
                 case Properties.Type.BOOLEAN:
-                    self.getBooleanProperty(name).orElse(null)
+                    self.getProperty(name).orElse(null)
                     break;
                 case Properties.Type.DOUBLE:
-                    if (self.getDoubleProperty(name).isPresent()) {
-                        self.getDoubleProperty(name).get()
+                    if (self.getProperty(name).isPresent()) {
+                        self.getProperty(name).get()
                     }
                     break;
                 case Properties.Type.INTEGER:
-                    if (self.getIntegerProperty(name).isPresent()) {
-                        self.getIntegerProperty(name).get()
+                    if (self.getProperty(name).isPresent()) {
+                        self.getProperty(name).get()
                     }
                     break;
                 default:

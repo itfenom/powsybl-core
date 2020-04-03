@@ -10,8 +10,6 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.util.Properties;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 
@@ -86,91 +84,27 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
-    public Optional<String> getProperty(String key) {
+    public <P> Optional<P> getProperty(String key) {
         return properties.getProperty(key);
     }
 
     @Override
-    public Optional<String> getProperty(String key, String defaultValue) {
+    public <P> Optional<P> getProperty(String key, P defaultValue) {
         return properties.getProperty(key, defaultValue);
     }
 
     @Override
-    public OptionalInt getIntegerProperty(String key) {
-        return properties.getIntegerProperty(key);
-    }
-
-    @Override
-    public OptionalInt getIntegerProperty(String key, Integer defaultValue) {
-        return properties.getIntegerProperty(key, defaultValue);
-    }
-
-    @Override
-    public OptionalDouble getDoubleProperty(String key) {
-        return properties.getDoubleProperty(key);
-    }
-
-    @Override
-    public OptionalDouble getDoubleProperty(String key, Double defaultValue) {
-        return properties.getDoubleProperty(key, defaultValue);
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanProperty(String key) {
-        return properties.getBooleanProperty(key);
-    }
-
-    @Override
-    public Optional<Boolean> getBooleanProperty(String key, Boolean defaultValue) {
-        return properties.getBooleanProperty(key, defaultValue);
-    }
-
-    @Override
-    public String setProperty(String key, String value) {
-        Pair<Properties.Type, Object> newValue = new ImmutablePair<>(Properties.Type.STRING, value);
-        Pair<Properties.Type, Object> oldValue = properties.put(key, newValue);
+    public <P> P setProperty(String key, P value) {
+        Objects.requireNonNull(key, "Property name is null");
+        Objects.requireNonNull(value, "Property value is null");
+        Properties.Property newValue = new Properties.Property(value);
+        Properties.Property oldValue = properties.put(key, newValue);
         if (Objects.isNull(oldValue)) {
             notifyElementAdded(key, newValue);
         } else {
             notifyElementReplaced(key, oldValue, newValue);
         }
-        return oldValue != null && Properties.isSameType(oldValue, newValue) ? (String) oldValue.getValue() : null;
-    }
-
-    @Override
-    public Integer setIntegerProperty(String key, Integer value) {
-        Pair<Properties.Type, Object> newValue = new ImmutablePair<>(Properties.Type.INTEGER, value);
-        Pair<Properties.Type, Object> oldValue = properties.put(key, newValue);
-        if (Objects.isNull(oldValue)) {
-            notifyElementAdded(key, newValue);
-        } else {
-            notifyElementReplaced(key, oldValue, newValue);
-        }
-        return oldValue != null && Properties.isSameType(oldValue, newValue) ? (Integer) oldValue.getValue() : null;
-    }
-
-    @Override
-    public Double setDoubleProperty(String key, Double value) {
-        Pair<Properties.Type, Object> newValue = new ImmutablePair<>(Properties.Type.DOUBLE, value);
-        Pair<Properties.Type, Object> oldValue = properties.put(key, newValue);
-        if (Objects.isNull(oldValue)) {
-            notifyElementAdded(key, newValue);
-        } else {
-            notifyElementReplaced(key, oldValue, newValue);
-        }
-        return oldValue != null && Properties.isSameType(oldValue, newValue) ? (Double) oldValue.getValue() : null;
-    }
-
-    @Override
-    public Boolean setBooleanProperty(String key, Boolean value) {
-        Pair<Properties.Type, Object> newValue = new ImmutablePair<>(Properties.Type.BOOLEAN, value);
-        Pair<Properties.Type, Object> oldValue = properties.put(key, newValue);
-        if (Objects.isNull(oldValue)) {
-            notifyElementAdded(key, newValue);
-        } else {
-            notifyElementReplaced(key, oldValue, newValue);
-        }
-        return oldValue != null && Properties.isSameType(oldValue, newValue) ? (Boolean) oldValue.getValue() : null;
+        return oldValue != null && Properties.isSameType(oldValue, newValue) ? (P) oldValue.getValue() : null;
     }
 
     private void notifyElementAdded(String key, Object newValue) {
@@ -190,7 +124,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public Boolean removeProperty(String key) {
         boolean hasProperty = hasProperty(key);
         if (hasProperty) {
-            Pair<Properties.Type, Object> oldValue = properties.remove(key);
+            Properties.Property oldValue = properties.remove(key);
             getNetwork().getListeners().notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
         }
         return hasProperty;

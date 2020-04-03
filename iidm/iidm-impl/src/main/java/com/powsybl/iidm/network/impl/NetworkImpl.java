@@ -1047,24 +1047,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
-            mergedLine.properties.getPropertyList().forEach((key, val) -> {
-                switch (val.getKey()) {
-                    case STRING:
-                        l.setProperty(key, (String) val.getValue());
-                        break;
-                    case INTEGER:
-                        l.setIntegerProperty(key, (Integer) val.getValue());
-                        break;
-                    case DOUBLE:
-                        l.setDoubleProperty(key, (Double) val.getValue());
-                        break;
-                    case BOOLEAN:
-                        l.setBooleanProperty(key, (Boolean) val.getValue());
-                        break;
-                    default:
-                        break;
-                }
-            });
+            mergedLine.properties.getPropertyList().forEach((key, val) -> l.setProperty(key, val.getValue()));
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
     }
