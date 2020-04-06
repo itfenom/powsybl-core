@@ -21,6 +21,8 @@ import java.util.Properties;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
@@ -203,10 +205,14 @@ public class RunAnalysisTool implements Tool {
             CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
             outputFormatter = csvTableFormatterFactory.create(outputWriter, "analysis results", TableFormatterConfig.load(),
                 new Column("Case"),
-                new Column("Minimum"),
-                new Column("Maximum"),
-                new Column("Average"),
-                new Column("Deviation"),
+                new Column("AbsoluteMinimum"),
+                new Column("AbsoluteMaximum"),
+                new Column("AbsoluteAverage"),
+                new Column("AbsoluteDeviation"),
+                new Column("RelativeMinimum"),
+                new Column("RelativeMaximum"),
+                new Column("RelativeAverage"),
+                new Column("RelativeDeviation"),
                 new Column("Loadflow"));
 
             if (outputDetailedFile == null) {
@@ -236,13 +242,13 @@ public class RunAnalysisTool implements Tool {
             if (n == null) {
                 throw new PowsyblException("Case '" + caseFile + "' not found");
             }
-
             String variant0 = n.getVariantManager().getWorkingVariantId();
             String variant1 = LOADFLOW_VARIANT_ID;
 
             n.getVariantManager().cloneVariant(n.getVariantManager().getWorkingVariantId(), variant1);
 
             LoadFlowResult result = runner.run(n, computationManager, params);
+            LOG.debug("Loadflow is ok? " + result.isOk());
 
             // Get voltages for variant0
             n.getVariantManager().setWorkingVariant(variant0);
@@ -251,18 +257,24 @@ public class RunAnalysisTool implements Tool {
 
             // Switch to variant1 and report differences
             n.getVariantManager().setWorkingVariant(variant1);
-            DoubleSummaryStatistics doubleSummaryStatistics = new DoubleSummaryStatistics();
-            Map<String, Double> diff = new HashMap<>();
+            DoubleSummaryStatistics absoluteSummaryStatistics = new DoubleSummaryStatistics();
+            DoubleSummaryStatistics relativeSummaryStatistics = new DoubleSummaryStatistics();
+            Map<String, Double> absDiff = new HashMap<>();
+            Map<String, Double> relDiff = new HashMap<>();
             for (Bus b : n.getBusView().getBuses()) {
                 double v0 = vv0.get(b.getId());
                 double v1 = b.getV();
+                double df = Math.abs(v1 - v0);
                 if (!(Double.isFinite(v0) && Double.isFinite(v1))) {
                     continue;
                 }
-                doubleSummaryStatistics.accept(Math.abs(v1 - v0));
-                diff.put(b.getId(), Math.abs(v1 - v0));
+                absoluteSummaryStatistics.accept(df);
+                absDiff.put(b.getId(), df);
+                double relDf = df * 100 / v1;
+                relativeSummaryStatistics.accept(relDf);
+                relDiff.put(b.getId(), relDf);
                 //System.out.println("v0 " + v0 + " v1 " + v1 + " diff " + Math.abs(v1 - v0));
-                if (Math.abs(v1 - v0) > 10.0 && outputDetailedFormatter != null) {
+                if (df > 10.0 && outputDetailedFormatter != null) {
                     try {
                         outputDetailedFormatter.writeCell(caseName);
                         outputDetailedFormatter.writeCell(b.getId());
@@ -274,15 +286,21 @@ public class RunAnalysisTool implements Tool {
                 }
             }
 
-            long busesCount = doubleSummaryStatistics.getCount();
-            double average = doubleSummaryStatistics.getAverage();
-            double deviation = Math.sqrt(diff.values().stream().mapToDouble(x -> Math.pow(x.doubleValue() - average, 2.0)).sum() / busesCount);
+            long busesCount = absoluteSummaryStatistics.getCount();
+            double absoluteAverage = absoluteSummaryStatistics.getAverage();
+            double absoluteDeviation = Math.sqrt(absDiff.values().stream().mapToDouble(x -> Math.pow(x.doubleValue() - absoluteAverage, 2.0)).sum() / busesCount);
+            double relativeAverage = relativeSummaryStatistics.getAverage();
+            double relativeDeviation = Math.sqrt(relDiff.values().stream().mapToDouble(x -> Math.pow(x.doubleValue() - relativeAverage, 2.0)).sum() / busesCount);
             try {
                 outputFormatter.writeCell(caseName);
-                outputFormatter.writeCell(doubleSummaryStatistics.getMin());
-                outputFormatter.writeCell(doubleSummaryStatistics.getMax());
-                outputFormatter.writeCell(average);
-                outputFormatter.writeCell(deviation);
+                outputFormatter.writeCell(absoluteSummaryStatistics.getMin());
+                outputFormatter.writeCell(absoluteSummaryStatistics.getMax());
+                outputFormatter.writeCell(absoluteAverage);
+                outputFormatter.writeCell(absoluteDeviation);
+                outputFormatter.writeCell(relativeSummaryStatistics.getMin());
+                outputFormatter.writeCell(relativeSummaryStatistics.getMax());
+                outputFormatter.writeCell(relativeAverage);
+                outputFormatter.writeCell(relativeDeviation);
                 outputFormatter.writeCell(result.isOk());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -296,4 +314,5 @@ public class RunAnalysisTool implements Tool {
     }
 
     private static final String LOADFLOW_VARIANT_ID = "Loadflow-values";
+    private static final Logger LOG = LoggerFactory.getLogger(RunAnalysisTool.class);
 }
