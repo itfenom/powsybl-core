@@ -59,6 +59,9 @@ class IdentifiableExtensionGroovyTest {
         assertEquals(true, s.getProperty("ok").get())
         s.ok = null
         assertNull(s.ok)
+        s.ko = false
+        assertEquals(false, s.ko)
+        assertEquals(false, s.getProperty("ko").get())
     }
 
     @Test

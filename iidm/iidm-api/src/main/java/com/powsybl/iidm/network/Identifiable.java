@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network;
 
 import java.util.*;
+import com.powsybl.iidm.network.util.Properties;
 
 import com.powsybl.commons.extensions.Extendable;
 
@@ -76,12 +77,12 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Get the type of the property associated to specified key
      */
-    com.powsybl.iidm.network.util.Properties.Type getPropertyType(String key);
+    Properties.Type getPropertyType(String key);
 
     /**
      * Remove property associated to specified key.
      */
-    Boolean removeProperty(String key);
+    boolean removeProperty(String key);
 
     /**
      * Get the fictitious status

@@ -92,8 +92,8 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public Boolean removeProperty(String key) {
-            return null;
+        public boolean removeProperty(String key) {
+            return false;
         }
 
         @Override

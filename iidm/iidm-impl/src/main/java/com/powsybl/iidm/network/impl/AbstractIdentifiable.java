@@ -121,7 +121,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
-    public Boolean removeProperty(String key) {
+    public boolean removeProperty(String key) {
         boolean hasProperty = hasProperty(key);
         if (hasProperty) {
             Properties.Property oldValue = properties.remove(key);

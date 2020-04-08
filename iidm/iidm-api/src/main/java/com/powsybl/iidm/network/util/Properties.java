@@ -74,39 +74,39 @@ public class Properties {
         }
     }
 
-    private final Map<String, Property> propertyList = new HashMap<>();
+    private final Map<String, Property> properties = new HashMap<>();
 
     public enum Type {
         STRING, INTEGER, DOUBLE, BOOLEAN;
     }
 
     public Property put(String key, Property value) {
-        return propertyList.put(key, value);
+        return properties.put(key, value);
     }
 
     public Property remove(String key) {
-        return propertyList.remove(key);
+        return properties.remove(key);
     }
 
     public boolean isEmpty() {
-        return propertyList.isEmpty();
+        return properties.isEmpty();
     }
 
     public boolean containsKey(String key) {
-        return propertyList.containsKey(key);
+        return properties.containsKey(key);
     }
 
-    public Map<String, Property> getPropertyList() {
-        return Collections.unmodifiableMap(propertyList);
+    public Map<String, Property> getProperties() {
+        return Collections.unmodifiableMap(properties);
     }
 
     public Type getPropertyType(String key) {
-        Property val = propertyList.get(key);
+        Property val = properties.get(key);
         return val != null ? val.getType() : null;
     }
 
     public <P> Optional<P> getProperty(String key) {
-        Property val = propertyList.get(key);
+        Property val = properties.get(key);
         P returnValue = null;
         if (val != null && val.getValue() != null) {
             returnValue = (P) val.getValue();
@@ -124,7 +124,7 @@ public class Properties {
     }
 
     public Set<String> keySet() {
-        return propertyList.keySet();
+        return properties.keySet();
     }
 
     public void mergeProperty(DanglingLine dl1, DanglingLine dl2, String name, Type type) {
@@ -157,8 +157,8 @@ public class Properties {
         Set<String> dl1Properties = dl1.getPropertyNames();
         Set<String> dl2Properties = dl2.getPropertyNames();
         Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> setDanglingLineProperty(propertyList, dl1, prop));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> setDanglingLineProperty(propertyList, dl2, prop));
+        Sets.difference(dl1Properties, commonProperties).forEach(prop -> setDanglingLineProperty(properties, dl1, prop));
+        Sets.difference(dl2Properties, commonProperties).forEach(prop -> setDanglingLineProperty(properties, dl2, prop));
         commonProperties.forEach(prop -> {
             if (dl1.getPropertyType(prop).equals(dl2.getPropertyType(prop))) {
                 mergeProperty(dl1, dl2, prop, dl1.getPropertyType(prop));

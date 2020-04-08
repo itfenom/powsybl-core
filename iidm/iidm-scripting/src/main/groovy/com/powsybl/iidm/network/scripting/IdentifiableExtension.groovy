@@ -24,17 +24,17 @@ class IdentifiableExtension {
             switch(self.getPropertyType(name)) {
                 case Properties.Type.BOOLEAN:
                     self.getProperty(name).orElse(null)
-                    break;
+                    break
                 case Properties.Type.DOUBLE:
                     if (self.getProperty(name).isPresent()) {
                         self.getProperty(name).get()
                     }
-                    break;
+                    break
                 case Properties.Type.INTEGER:
                     if (self.getProperty(name).isPresent()) {
                         self.getProperty(name).get()
                     }
-                    break;
+                    break
                 default:
                     self.getProperty(name).orElse(null)
             }
@@ -44,23 +44,23 @@ class IdentifiableExtension {
         if (value == null) {
             self.removeProperty(name)
         } else {
-            switch(self.getPropertyType(name)) {
+            /*switch(self.getPropertyType(name)) {
                 case Properties.Type.BOOLEAN:
-                    self.getProperty(name).orElse(null)
-                    break;
+                    self.setProperty(name, value)
+                    break
                 case Properties.Type.DOUBLE:
                     if (self.getProperty(name).isPresent()) {
-                        self.getProperty(name).get()
+                        self.setProperty(name, value)
                     }
-                    break;
+                    break
                 case Properties.Type.INTEGER:
                     if (self.getProperty(name).isPresent()) {
-                        self.getProperty(name).get()
+                        self.setProperty(name, value)
                     }
-                    break;
-                default:
-                    self.getProperty(name).orElse(null)
-            }
+                    break
+                default:*/
+                    self.setProperty(name, value)
+            //}
         }
     }
 
