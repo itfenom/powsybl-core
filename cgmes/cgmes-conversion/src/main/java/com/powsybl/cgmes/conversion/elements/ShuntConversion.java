@@ -61,7 +61,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                 modelAdder.beginSection()
                         .setB(sp.asDouble("b"))
                         .setG(sp.asDouble("g"))
-                        .setSectionNum(sp.asInt("sectionNumber"))
+                        .setSectionIndex(sp.asInt("sectionNumber"))
                         .endSection();
             }
             modelAdder.add();
