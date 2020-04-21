@@ -12,12 +12,16 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DanglingLineImpl.class);
 
     private final Ref<? extends VariantManagerHolder> network;
 
@@ -211,5 +215,4 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             q0.set(index, q0.get(sourceIndex));
         }
     }
-
 }

@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.scripting
 import com.powsybl.commons.PowsyblException
 import com.powsybl.commons.extensions.Extension
 import com.powsybl.iidm.network.Identifiable
-import com.powsybl.iidm.network.util.Properties
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,45 +21,38 @@ class IdentifiableExtension {
             extension
         } else {
             switch(self.getPropertyType(name)) {
-                case Properties.Type.BOOLEAN:
-                    self.getProperty(name).orElse(null)
+                case Identifiable.PropertyType.BOOLEAN:
+                    self.getBooleanProperty(name)
                     break
-                case Properties.Type.DOUBLE:
-                    if (self.getProperty(name).isPresent()) {
-                        self.getProperty(name).get()
-                    }
+                case Identifiable.PropertyType.DOUBLE:
+                    self.getDoubleProperty(name)
                     break
-                case Properties.Type.INTEGER:
-                    if (self.getProperty(name).isPresent()) {
-                        self.getProperty(name).get()
-                    }
+                case Identifiable.PropertyType.INTEGER:
+                    self.getIntegerProperty(name)
                     break
                 default:
-                    self.getProperty(name).orElse(null)
+                    self.getStringProperty(name)
             }
         }
     }
+
     static void propertyMissing(Identifiable self, String name, Object value) {
-        if (value == null) {
-            self.removeProperty(name)
-        } else {
-            /*switch(self.getPropertyType(name)) {
-                case Properties.Type.BOOLEAN:
-                    self.setProperty(name, value)
-                    break
-                case Properties.Type.DOUBLE:
-                    if (self.getProperty(name).isPresent()) {
-                        self.setProperty(name, value)
-                    }
-                    break
-                case Properties.Type.INTEGER:
-                    if (self.getProperty(name).isPresent()) {
-                        self.setProperty(name, value)
-                    }
-                    break
-                default:*/
-                    self.setProperty(name, value)
-            //}
+        switch(value.getClass().getSimpleName()) {
+            case "String":
+                self.setStringProperty(name, value)
+                break
+            case "Double":
+                self.setDoubleProperty(name, value)
+                break
+            case "Integer":
+                self.setIntegerProperty(name, value)
+                break
+            case "Boolean":
+                self.setBooleanProperty(name, value)
+                break
+            default:
+                self.setProperty(name, value)
+                break
         }
     }
 

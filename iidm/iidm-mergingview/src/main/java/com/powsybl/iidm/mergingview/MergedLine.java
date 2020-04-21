@@ -10,9 +10,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.Properties;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.iidm.network.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -402,21 +402,6 @@ class MergedLine implements Line {
     }
 
     @Override
-    public boolean hasProperty() {
-        return !properties.isEmpty();
-    }
-
-    @Override
-    public boolean hasProperty(final String key) {
-        return properties.containsKey(key);
-    }
-
-    @Override
-    public Properties.Type getPropertyType(final String key) {
-        return properties.getPropertyType(key);
-    }
-
-    @Override
     public boolean isFictitious() {
         return dl1.isFictitious() || dl2.isFictitious();
     }
@@ -428,33 +413,180 @@ class MergedLine implements Line {
     }
 
     @Override
-    public <P> Optional<P> getProperty(final String key) {
-        return properties.getProperty(key);
+    public PropertyType getPropertyType(String key) {
+        return properties.getPropertyType(key);
     }
 
     @Override
-    public <P> Optional<P> getProperty(final String key, final P defaultValue) {
-        return properties.getProperty(key, defaultValue);
+    public String getStringProperty(String key) {
+        return properties.getStringProperty(key);
     }
 
     @Override
-    public <P> P setProperty(final String key, final P value) {
-        Objects.requireNonNull(key, "Property name is null");
-        Objects.requireNonNull(value, "Property value is null");
-        Properties.Property newValue = new Properties.Property(value);
-        Properties.Property oldValue = properties.put(key, newValue);
-        return oldValue != null && Properties.isSameType(oldValue, newValue) ? (P) oldValue.getValue() : null;
+    public String getStringProperty(String key, String defaultValue) {
+        return properties.getStringProperty(key, defaultValue);
     }
 
     @Override
-    public Set<String> getPropertyNames() {
-        return properties.keySet();
+    public Optional<String> getOptionalStringProperty(String key) {
+        return Optional.ofNullable(properties.getStringProperty(key));
     }
 
     @Override
-    public Boolean removeProperty(final String key) {
-        Properties.Property removedVal = properties.remove(key);
-        return removedVal != null;
+    public String setStringProperty(String key, String value) {
+        return properties.putString(key, value);
+    }
+
+    public String removeStringProperty(String key) {
+        return properties.removeString(key);
+    }
+
+    public boolean isStringEmpty() {
+        return properties.isStringEmpty();
+    }
+
+    @Override
+    public Set<String> getStringPropertyNames() {
+        return properties.stringKeySet();
+    }
+
+    @Override
+    public boolean hasStringProperty() {
+        return !properties.isStringEmpty();
+    }
+
+    @Override
+    public boolean hasStringProperty(String key) {
+        return properties.containsStringKey(key);
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key) {
+        return properties.getIntegerProperty(key);
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key, Integer defaultValue) {
+        return properties.getIntegerProperty(key, defaultValue);
+    }
+
+    @Override
+    public OptionalInt getOptionalIntegerProperty(String key) {
+        return OptionalInt.of(properties.getIntegerProperty(key));
+    }
+
+    @Override
+    public Integer setIntegerProperty(String key, Integer value) {
+        return properties.putInteger(key, value);
+    }
+
+    public Integer removeInteger(String key) {
+        return properties.removeInteger(key);
+    }
+
+    public boolean isIntegerEmpty() {
+        return properties.isIntegerEmpty();
+    }
+
+    @Override
+    public Set<String> getIntegerPropertyNames() {
+        return properties.integerKeySet();
+    }
+
+    @Override
+    public boolean hasIntegerProperty() {
+        return !properties.isIntegerEmpty();
+    }
+
+    @Override
+    public boolean hasIntegerProperty(String key) {
+        return properties.containsIntegerKey(key);
+    }
+
+    @Override
+    public Double getDoubleProperty(String key) {
+        return properties.getDoubleProperty(key);
+    }
+
+    @Override
+    public Double getDoubleProperty(String key, Double defaultValue) {
+        return properties.getDoubleProperty(key, defaultValue);
+    }
+
+    @Override
+    public OptionalDouble getOptionalDoubleProperty(String key) {
+        return OptionalDouble.of(properties.getDoubleProperty(key));
+    }
+
+    @Override
+    public Double setDoubleProperty(String key, Double value) {
+        return properties.putDouble(key, value);
+    }
+
+    public Double removeDouble(String key) {
+        return properties.removeDouble(key);
+    }
+
+    public boolean isDoubleEmpty() {
+        return properties.isDoubleEmpty();
+    }
+
+    @Override
+    public Set<String> getDoublePropertyNames() {
+        return properties.doubleKeySet();
+    }
+
+    @Override
+    public boolean hasDoubleProperty() {
+        return !properties.isDoubleEmpty();
+    }
+
+    @Override
+    public boolean hasDoubleProperty(String key) {
+        return properties.containsDoubleKey(key);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key) {
+        return properties.getBooleanProperty(key);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+        return properties.getBooleanProperty(key, defaultValue);
+    }
+
+    @Override
+    public Optional<Boolean> getOptionalBooleanProperty(String key) {
+        return Optional.ofNullable(properties.getBooleanProperty(key));
+    }
+
+    @Override
+    public Boolean setBooleanProperty(String key, Boolean value) {
+        return properties.putBoolean(key, value);
+    }
+
+    public Boolean removeBoolean(String key) {
+        return properties.removeBoolean(key);
+    }
+
+    public boolean isBooleanEmpty() {
+        return properties.isBooleanEmpty();
+    }
+
+    @Override
+    public Set<String> getBooleanPropertyNames() {
+        return properties.booleanKeySet();
+    }
+
+    @Override
+    public boolean hasBooleanProperty() {
+        return !properties.isBooleanEmpty();
+    }
+
+    @Override
+    public boolean hasBooleanProperty(String key) {
+        return properties.containsBooleanKey(key);
     }
 
     // -------------------------------

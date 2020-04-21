@@ -10,13 +10,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Properties;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -216,19 +214,7 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public boolean hasProperty() {
-        return index.getNetworkStream()
-                .anyMatch(Network::hasProperty);
-    }
-
-    @Override
-    public boolean hasProperty(String key) {
-        return index.getNetworkStream()
-                .anyMatch(n -> n.hasProperty(key));
-    }
-
-    @Override
-    public Properties.Type getPropertyType(String key) {
+    public PropertyType getPropertyType(String key) {
         return index.getNetworkStream()
             .map(n -> n.getPropertyType(key))
             .filter(Objects::nonNull)
@@ -237,47 +223,215 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public <P> Optional<P> getProperty(String key) {
-        return getProperty(key, null);
+    public boolean hasStringProperty() {
+        return index.getNetworkStream()
+            .anyMatch(Network::hasStringProperty);
     }
 
     @Override
-    public <P> Optional<P> getProperty(String key, P defaultValue) {
-        Function<Network, P> function = (Network n) -> n.getProperty(key).isPresent() ? (P) n.getProperty(key).get() : null;
-        return Optional.ofNullable(getTypedProperty(defaultValue, function));
+    public boolean hasIntegerProperty() {
+        return index.getNetworkStream()
+            .anyMatch(Network::hasIntegerProperty);
     }
 
-    private <T> T getTypedProperty(T defaultValue, Function<Network, T> function) {
+    @Override
+    public boolean hasDoubleProperty() {
         return index.getNetworkStream()
-            .map(function)
+            .anyMatch(Network::hasDoubleProperty);
+    }
+
+    @Override
+    public boolean hasBooleanProperty() {
+        return index.getNetworkStream()
+            .anyMatch(Network::hasBooleanProperty);
+    }
+
+    @Override
+    public boolean hasStringProperty(String key) {
+        return index.getNetworkStream()
+            .anyMatch(n -> n.hasStringProperty(key));
+    }
+
+    @Override
+    public boolean hasIntegerProperty(String key) {
+        return index.getNetworkStream()
+            .anyMatch(n -> n.hasIntegerProperty(key));
+    }
+
+    @Override
+    public boolean hasDoubleProperty(String key) {
+        return index.getNetworkStream()
+            .anyMatch(n -> n.hasDoubleProperty(key));
+    }
+
+    @Override
+    public boolean hasBooleanProperty(String key) {
+        return index.getNetworkStream()
+            .anyMatch(n -> n.hasBooleanProperty(key));
+    }
+
+    @Override
+    public String getStringProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getStringProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public String getStringProperty(String key, String defaultValue) {
+        return index.getNetworkStream()
+            .map(n -> n.getStringProperty(key))
             .filter(Objects::nonNull)
             .findFirst()
             .orElse(defaultValue);
     }
 
     @Override
-    public <P> P setProperty(String key, P value) {
-        Objects.requireNonNull(key, "Property name is null");
-        Objects.requireNonNull(value, "Property value is null");
-        index.getNetworkStream().forEach(n -> n.setProperty(key, value));
+    public Optional<String> getOptionalStringProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getOptionalStringProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        index.getNetworkStream().forEach(n -> n.setStringProperty(key, value));
         return null;
     }
 
     @Override
-    public Set<String> getPropertyNames() {
+    public Integer getIntegerProperty(String key) {
         return index.getNetworkStream()
-            .map(Network::getPropertyNames)
+            .map(n -> n.getIntegerProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key, Integer defaultValue) {
+        return index.getNetworkStream()
+            .map(n -> n.getIntegerProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(defaultValue);
+    }
+
+    @Override
+    public OptionalInt getOptionalIntegerProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getOptionalIntegerProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Integer setIntegerProperty(String key, Integer value) {
+        index.getNetworkStream().forEach(n -> n.setIntegerProperty(key, value));
+        return null;
+    }
+
+    @Override
+    public Double getDoubleProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getDoubleProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Double getDoubleProperty(String key, Double defaultValue) {
+        return index.getNetworkStream()
+            .map(n -> n.getDoubleProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(defaultValue);
+    }
+
+    @Override
+    public OptionalDouble getOptionalDoubleProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getOptionalDoubleProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Double setDoubleProperty(String key, Double value) {
+        index.getNetworkStream().forEach(n -> n.setDoubleProperty(key, value));
+        return null;
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getBooleanProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+        return index.getNetworkStream()
+            .map(n -> n.getBooleanProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(defaultValue);
+    }
+
+    @Override
+    public Optional<Boolean> getOptionalBooleanProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getOptionalBooleanProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Boolean setBooleanProperty(String key, Boolean value) {
+        index.getNetworkStream().forEach(n -> n.setBooleanProperty(key, value));
+        return null;
+    }
+
+    @Override
+    public Set<String> getStringPropertyNames() {
+        return index.getNetworkStream()
+            .map(Network::getStringPropertyNames)
             .flatMap(Set<String>::stream)
             .collect(Collectors.toSet());
     }
 
     @Override
-    public Boolean removeProperty(String key) {
-        boolean hasProperty = hasProperty(key);
-        if (hasProperty) {
-            index.getNetworkStream().forEach(n -> n.removeProperty(key));
-        }
-        return hasProperty;
+    public Set<String> getIntegerPropertyNames() {
+        return index.getNetworkStream()
+            .map(Network::getIntegerPropertyNames)
+            .flatMap(Set<String>::stream)
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<String> getDoublePropertyNames() {
+        return index.getNetworkStream()
+            .map(Network::getDoublePropertyNames)
+            .flatMap(Set<String>::stream)
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<String> getBooleanPropertyNames() {
+        return index.getNetworkStream()
+            .map(Network::getBooleanPropertyNames)
+            .flatMap(Set<String>::stream)
+            .collect(Collectors.toSet());
     }
 
     @Override

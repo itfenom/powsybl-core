@@ -59,8 +59,8 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         Path xmlFile = tmpDir.resolve("n.xml");
         NetworkXml.writeAndValidate(network, xmlFile);
         Network readNetwork = NetworkXml.read(xmlFile);
-        assertTrue(readNetwork.getGenerator("GEN").getProperty("test").isPresent());
-        assertEquals("foo", readNetwork.getGenerator("GEN").getProperty("test").get());
+        assertTrue(readNetwork.getGenerator("GEN").hasStringProperty("test"));
+        assertEquals("foo", readNetwork.getGenerator("GEN").getStringProperty("test"));
     }
 
     @Test

@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.util.Properties;
 
 import java.util.*;
 
@@ -69,42 +68,198 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
-    public boolean hasProperty() {
-        return !properties.isEmpty();
-    }
-
-    @Override
-    public boolean hasProperty(String key) {
-        return properties.containsKey(key);
-    }
-
-    @Override
-    public Properties.Type getPropertyType(String key) {
+    public PropertyType getPropertyType(String key) {
         return properties.getPropertyType(key);
     }
 
     @Override
-    public <P> Optional<P> getProperty(String key) {
-        return properties.getProperty(key);
+    public String getStringProperty(String key) {
+        return properties.getStringProperty(key);
     }
 
     @Override
-    public <P> Optional<P> getProperty(String key, P defaultValue) {
-        return properties.getProperty(key, defaultValue);
+    public String getStringProperty(String key, String defaultValue) {
+        return properties.getStringProperty(key, defaultValue);
     }
 
     @Override
-    public <P> P setProperty(String key, P value) {
-        Objects.requireNonNull(key, "Property name is null");
-        Objects.requireNonNull(value, "Property value is null");
-        Properties.Property newValue = new Properties.Property(value);
-        Properties.Property oldValue = properties.put(key, newValue);
-        if (Objects.isNull(oldValue)) {
-            notifyElementAdded(key, newValue);
+    public Optional<String> getOptionalStringProperty(String key) {
+        return Optional.ofNullable(properties.getStringProperty(key));
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        notifyElementModification(key, value);
+        return properties.putString(key, value);
+    }
+
+    public String removeStringProperty(String key) {
+        return properties.removeString(key);
+    }
+
+    public boolean isStringEmpty() {
+        return properties.isStringEmpty();
+    }
+
+    @Override
+    public Set<String> getStringPropertyNames() {
+        return properties.stringKeySet();
+    }
+
+    @Override
+    public boolean hasStringProperty() {
+        return !properties.isStringEmpty();
+    }
+
+    @Override
+    public boolean hasStringProperty(String key) {
+        return properties.containsStringKey(key);
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key) {
+        return properties.getIntegerProperty(key);
+    }
+
+    @Override
+    public Integer getIntegerProperty(String key, Integer defaultValue) {
+        return properties.getIntegerProperty(key, defaultValue);
+    }
+
+    @Override
+    public OptionalInt getOptionalIntegerProperty(String key) {
+        return OptionalInt.of(properties.getIntegerProperty(key));
+    }
+
+    @Override
+    public Integer setIntegerProperty(String key, Integer value) {
+        notifyElementModification(key, value);
+        return properties.putInteger(key, value);
+    }
+
+    public Integer removeInteger(String key) {
+        return properties.removeInteger(key);
+    }
+
+    public boolean isIntegerEmpty() {
+        return properties.isIntegerEmpty();
+    }
+
+    @Override
+    public Set<String> getIntegerPropertyNames() {
+        return properties.integerKeySet();
+    }
+
+    @Override
+    public boolean hasIntegerProperty() {
+        return !properties.isIntegerEmpty();
+    }
+
+    @Override
+    public boolean hasIntegerProperty(String key) {
+        return properties.containsIntegerKey(key);
+    }
+
+    @Override
+    public Double getDoubleProperty(String key) {
+        return properties.getDoubleProperty(key);
+    }
+
+    @Override
+    public Double getDoubleProperty(String key, Double defaultValue) {
+        return properties.getDoubleProperty(key, defaultValue);
+    }
+
+    @Override
+    public OptionalDouble getOptionalDoubleProperty(String key) {
+        return OptionalDouble.of(properties.getDoubleProperty(key));
+    }
+
+    @Override
+    public Double setDoubleProperty(String key, Double value) {
+        notifyElementModification(key, value);
+        return properties.putDouble(key, value);
+    }
+
+    public Double removeDouble(String key) {
+        return properties.removeDouble(key);
+    }
+
+    public boolean isDoubleEmpty() {
+        return properties.isDoubleEmpty();
+    }
+
+    @Override
+    public Set<String> getDoublePropertyNames() {
+        return properties.doubleKeySet();
+    }
+
+    @Override
+    public boolean hasDoubleProperty() {
+        return !properties.isDoubleEmpty();
+    }
+
+    @Override
+    public boolean hasDoubleProperty(String key) {
+        return properties.containsDoubleKey(key);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key) {
+        return properties.getBooleanProperty(key);
+    }
+
+    @Override
+    public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+        return properties.getBooleanProperty(key, defaultValue);
+    }
+
+    @Override
+    public Optional<Boolean> getOptionalBooleanProperty(String key) {
+        return Optional.ofNullable(properties.getBooleanProperty(key));
+    }
+
+    @Override
+    public Boolean setBooleanProperty(String key, Boolean value) {
+        notifyElementModification(key, value);
+        return properties.putBoolean(key, value);
+    }
+
+    public Boolean removeBoolean(String key) {
+        return properties.removeBoolean(key);
+    }
+
+    public boolean isBooleanEmpty() {
+        return properties.isBooleanEmpty();
+    }
+
+    @Override
+    public Set<String> getBooleanPropertyNames() {
+        return properties.booleanKeySet();
+    }
+
+    @Override
+    public boolean hasBooleanProperty() {
+        return !properties.isBooleanEmpty();
+    }
+
+    @Override
+    public boolean hasBooleanProperty(String key) {
+        return properties.containsBooleanKey(key);
+    }
+
+    private void notifyElementModification(String key, Object value) {
+        if (properties.containsStringKey(key)) {
+            notifyElementReplaced(key, properties.getStringProperty(key), value);
+        } else if (properties.containsIntegerKey(key)) {
+            notifyElementReplaced(key, properties.getIntegerProperty(key), value);
+        } else if (properties.containsDoubleKey(key)) {
+            notifyElementReplaced(key, properties.getDoubleProperty(key), value);
+        } else if (properties.containsBooleanKey(key)) {
+            notifyElementReplaced(key, properties.getBooleanProperty(key), value);
         } else {
-            notifyElementReplaced(key, oldValue, newValue);
+            notifyElementAdded(key, value);
         }
-        return oldValue != null && Properties.isSameType(oldValue, newValue) ? (P) oldValue.getValue() : null;
     }
 
     private void notifyElementAdded(String key, Object newValue) {
@@ -113,21 +268,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     private void notifyElementReplaced(String key, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, newValue);
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
-        return properties.keySet();
-    }
-
-    @Override
-    public boolean removeProperty(String key) {
-        boolean hasProperty = hasProperty(key);
-        if (hasProperty) {
-            Properties.Property oldValue = properties.remove(key);
-            getNetwork().getListeners().notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
-        }
-        return hasProperty;
     }
 
     @Override

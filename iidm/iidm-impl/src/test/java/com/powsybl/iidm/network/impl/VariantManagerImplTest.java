@@ -12,7 +12,6 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.util.Properties;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.junit.Test;
 
@@ -57,43 +56,148 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public boolean hasProperty() {
-            return false;
-        }
-
-        @Override
-        public boolean hasProperty(String key) {
-            return false;
-        }
-
-        @Override
-        public Properties.Type getPropertyType(String key) {
+        public PropertyType getPropertyType(String key) {
             return null;
         }
 
         @Override
-        public <P> Optional<P> getProperty(String key) {
+        public boolean hasStringProperty() {
+            return false;
+        }
+
+        @Override
+        public boolean hasIntegerProperty() {
+            return false;
+        }
+
+        @Override
+        public boolean hasDoubleProperty() {
+            return false;
+        }
+
+        @Override
+        public boolean hasBooleanProperty() {
+            return false;
+        }
+
+        @Override
+        public boolean hasStringProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public boolean hasIntegerProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public boolean hasDoubleProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public boolean hasBooleanProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public String getStringProperty(String key) {
+            return null;
+        }
+
+        @Override
+        public String getStringProperty(String key, String defaultValue) {
+            return null;
+        }
+
+        @Override
+        public Optional<String> getOptionalStringProperty(String key) {
             return Optional.empty();
         }
 
         @Override
-        public <P> Optional<P> getProperty(String key, P defaultValue) {
+        public String setStringProperty(String key, String value) {
+            return null;
+        }
+
+        @Override
+        public Integer getIntegerProperty(String key) {
+            return null;
+        }
+
+        @Override
+        public Integer getIntegerProperty(String key, Integer defaultValue) {
+            return null;
+        }
+
+        @Override
+        public OptionalInt getOptionalIntegerProperty(String key) {
+            return OptionalInt.empty();
+        }
+
+        @Override
+        public Integer setIntegerProperty(String key, Integer value) {
+            return null;
+        }
+
+        @Override
+        public Double getDoubleProperty(String key) {
+            return null;
+        }
+
+        @Override
+        public Double getDoubleProperty(String key, Double defaultValue) {
+            return null;
+        }
+
+        @Override
+        public OptionalDouble getOptionalDoubleProperty(String key) {
+            return OptionalDouble.empty();
+        }
+
+        @Override
+        public Double setDoubleProperty(String key, Double value) {
+            return null;
+        }
+
+        @Override
+        public Boolean getBooleanProperty(String key) {
+            return null;
+        }
+
+        @Override
+        public Boolean getBooleanProperty(String key, Boolean defaultValue) {
+            return null;
+        }
+
+        @Override
+        public Optional<Boolean> getOptionalBooleanProperty(String key) {
             return Optional.empty();
         }
 
         @Override
-        public <P> P setProperty(String key, P value) {
+        public Boolean setBooleanProperty(String key, Boolean value) {
             return null;
         }
 
         @Override
-        public Set<String> getPropertyNames() {
+        public Set<String> getStringPropertyNames() {
             return null;
         }
 
         @Override
-        public boolean removeProperty(String key) {
-            return false;
+        public Set<String> getIntegerPropertyNames() {
+            return null;
+        }
+
+        @Override
+        public Set<String> getDoublePropertyNames() {
+            return null;
+        }
+
+        @Override
+        public Set<String> getBooleanPropertyNames() {
+            return null;
         }
 
         @Override

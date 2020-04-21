@@ -10,7 +10,6 @@ import com.google.common.collect.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.util.Properties;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
 import com.powsybl.math.graph.GraphUtil;
@@ -1047,7 +1046,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
-            mergedLine.properties.getProperties().forEach((key, val) -> l.setProperty(key, val.getValue()));
+            mergedLine.properties.stringKeySet().forEach(key -> l.setStringProperty(key, mergedLine.properties.getStringProperty(key)));
+            mergedLine.properties.integerKeySet().forEach(key -> l.setIntegerProperty(key, mergedLine.properties.getIntegerProperty(key)));
+            mergedLine.properties.doubleKeySet().forEach(key -> l.setDoubleProperty(key, mergedLine.properties.getDoubleProperty(key)));
+            mergedLine.properties.booleanKeySet().forEach(key -> l.setBooleanProperty(key, mergedLine.properties.getBooleanProperty(key)));
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
     }
