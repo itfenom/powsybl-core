@@ -93,14 +93,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return properties.putString(key, value);
     }
 
-    public String removeStringProperty(String key) {
-        return properties.removeString(key);
-    }
-
-    public boolean isStringEmpty() {
-        return properties.isStringEmpty();
-    }
-
     @Override
     public Set<String> getStringPropertyNames() {
         return properties.stringKeySet();
@@ -135,14 +127,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public Integer setIntegerProperty(String key, Integer value) {
         notifyElementModification(key, value);
         return properties.putInteger(key, value);
-    }
-
-    public Integer removeInteger(String key) {
-        return properties.removeInteger(key);
-    }
-
-    public boolean isIntegerEmpty() {
-        return properties.isIntegerEmpty();
     }
 
     @Override
@@ -181,14 +165,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return properties.putDouble(key, value);
     }
 
-    public Double removeDouble(String key) {
-        return properties.removeDouble(key);
-    }
-
-    public boolean isDoubleEmpty() {
-        return properties.isDoubleEmpty();
-    }
-
     @Override
     public Set<String> getDoublePropertyNames() {
         return properties.doubleKeySet();
@@ -223,14 +199,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public Boolean setBooleanProperty(String key, Boolean value) {
         notifyElementModification(key, value);
         return properties.putBoolean(key, value);
-    }
-
-    public Boolean removeBoolean(String key) {
-        return properties.removeBoolean(key);
-    }
-
-    public boolean isBooleanEmpty() {
-        return properties.isBooleanEmpty();
     }
 
     @Override

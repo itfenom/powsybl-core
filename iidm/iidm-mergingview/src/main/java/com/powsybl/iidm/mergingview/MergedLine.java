@@ -437,14 +437,6 @@ class MergedLine implements Line {
         return properties.putString(key, value);
     }
 
-    public String removeStringProperty(String key) {
-        return properties.removeString(key);
-    }
-
-    public boolean isStringEmpty() {
-        return properties.isStringEmpty();
-    }
-
     @Override
     public Set<String> getStringPropertyNames() {
         return properties.stringKeySet();
@@ -478,14 +470,6 @@ class MergedLine implements Line {
     @Override
     public Integer setIntegerProperty(String key, Integer value) {
         return properties.putInteger(key, value);
-    }
-
-    public Integer removeInteger(String key) {
-        return properties.removeInteger(key);
-    }
-
-    public boolean isIntegerEmpty() {
-        return properties.isIntegerEmpty();
     }
 
     @Override
@@ -523,14 +507,6 @@ class MergedLine implements Line {
         return properties.putDouble(key, value);
     }
 
-    public Double removeDouble(String key) {
-        return properties.removeDouble(key);
-    }
-
-    public boolean isDoubleEmpty() {
-        return properties.isDoubleEmpty();
-    }
-
     @Override
     public Set<String> getDoublePropertyNames() {
         return properties.doubleKeySet();
@@ -564,14 +540,6 @@ class MergedLine implements Line {
     @Override
     public Boolean setBooleanProperty(String key, Boolean value) {
         return properties.putBoolean(key, value);
-    }
-
-    public Boolean removeBoolean(String key) {
-        return properties.removeBoolean(key);
-    }
-
-    public boolean isBooleanEmpty() {
-        return properties.isBooleanEmpty();
     }
 
     @Override

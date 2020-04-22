@@ -487,14 +487,26 @@ public abstract class AbstractNetworkTest {
         network.setDoubleProperty(keyDouble, doubleValue);
         network.setStringProperty(keyString, stringValue);
 
+        assertTrue(network.hasBooleanProperty());
+        assertTrue(network.hasBooleanProperty(keyBool));
         assertTrue(network.getOptionalBooleanProperty(keyBool).isPresent());
         assertTrue(network.getOptionalBooleanProperty(keyBool).get());
+
+        assertTrue(network.hasIntegerProperty());
+        assertTrue(network.hasIntegerProperty(keyInt));
         assertTrue(network.getOptionalIntegerProperty(keyInt).isPresent());
         assertEquals(intValue, network.getOptionalIntegerProperty(keyInt).getAsInt());
+
+        assertTrue(network.hasDoubleProperty());
+        assertTrue(network.hasDoubleProperty(keyDouble));
         assertTrue(network.getOptionalDoubleProperty(keyDouble).isPresent());
         assertEquals(doubleValue, network.getOptionalDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+
+        assertTrue(network.hasStringProperty());
+        assertTrue(network.hasStringProperty(keyString));
         assertTrue(network.getOptionalStringProperty(keyString).isPresent());
         assertEquals(stringValue, network.getOptionalStringProperty(keyString).get());
+
         assertEquals(1, network.getStringPropertyNames().size());
         assertEquals(1, network.getIntegerPropertyNames().size());
         assertEquals(1, network.getDoublePropertyNames().size());

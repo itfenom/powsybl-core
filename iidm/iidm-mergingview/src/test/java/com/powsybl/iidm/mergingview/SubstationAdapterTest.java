@@ -83,10 +83,31 @@ public class SubstationAdapterTest {
         substation.setDoubleProperty(keyDouble, doubleValue);
         substation.setStringProperty(keyString, stringValue);
 
+        assertTrue(substation.hasBooleanProperty());
+        assertTrue(substation.hasBooleanProperty(keyBool));
+        assertTrue(substation.getOptionalBooleanProperty(keyBool).isPresent());
         assertTrue(substation.getBooleanProperty(keyBool));
+
+        assertTrue(substation.hasIntegerProperty());
+        assertTrue(substation.hasIntegerProperty(keyInt));
+        assertTrue(substation.getOptionalIntegerProperty(keyInt).isPresent());
         assertEquals(intValue, substation.getIntegerProperty(keyInt).intValue());
+
+        assertTrue(substation.hasDoubleProperty());
+        assertTrue(substation.hasDoubleProperty(keyDouble));
+        assertTrue(substation.getOptionalDoubleProperty(keyDouble).isPresent());
         assertEquals(doubleValue, substation.getDoubleProperty(keyDouble), 0.001d);
+
+        assertTrue(substation.hasStringProperty());
+        assertTrue(substation.hasStringProperty(keyString));
+        assertTrue(substation.getOptionalStringProperty(keyString).isPresent());
         assertEquals(stringValue, substation.getStringProperty(keyString));
+
+        assertEquals(Identifiable.PropertyType.BOOLEAN, substation.getPropertyType(keyBool));
+        assertEquals(Identifiable.PropertyType.DOUBLE, substation.getPropertyType(keyDouble));
+        assertEquals(Identifiable.PropertyType.INTEGER, substation.getPropertyType(keyInt));
+        assertEquals(Identifiable.PropertyType.STRING, substation.getPropertyType(keyString));
+
         assertEquals(2, substation.getStringPropertyNames().size());
         assertEquals(1, substation.getIntegerPropertyNames().size());
         assertEquals(1, substation.getDoublePropertyNames().size());

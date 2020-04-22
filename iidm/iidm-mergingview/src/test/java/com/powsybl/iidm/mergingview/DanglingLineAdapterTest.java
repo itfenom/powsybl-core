@@ -301,10 +301,26 @@ public class DanglingLineAdapterTest {
         mergedLine.setDoubleProperty(keyDouble, doubleValue);
         mergedLine.setStringProperty(keyString, stringValue);
 
+        assertTrue(mergedLine.hasBooleanProperty());
+        assertTrue(mergedLine.getOptionalBooleanProperty(keyBool).isPresent());
         assertTrue(mergedLine.getBooleanProperty(keyBool));
+        assertEquals(Identifiable.PropertyType.BOOLEAN, mergedLine.getPropertyType(keyBool));
+
+        assertTrue(mergedLine.hasIntegerProperty());
+        assertTrue(mergedLine.getOptionalIntegerProperty(keyInt).isPresent());
         assertEquals(intValue, mergedLine.getIntegerProperty(keyInt).intValue());
+        assertEquals(Identifiable.PropertyType.INTEGER, mergedLine.getPropertyType(keyInt));
+
+        assertTrue(mergedLine.hasDoubleProperty());
+        assertTrue(mergedLine.getOptionalDoubleProperty(keyDouble).isPresent());
         assertEquals(doubleValue, mergedLine.getDoubleProperty(keyDouble), 0.001d);
+        assertEquals(Identifiable.PropertyType.DOUBLE, mergedLine.getPropertyType(keyDouble));
+
+        assertTrue(mergedLine.hasStringProperty());
+        assertTrue(mergedLine.getOptionalStringProperty(keyString).isPresent());
         assertEquals(stringValue, mergedLine.getStringProperty(keyString));
+        assertEquals(Identifiable.PropertyType.STRING, mergedLine.getPropertyType(keyString));
+
         assertEquals(7, mergedLine.getStringPropertyNames().size());
         assertEquals(4, mergedLine.getIntegerPropertyNames().size());
         assertEquals(4, mergedLine.getDoublePropertyNames().size());

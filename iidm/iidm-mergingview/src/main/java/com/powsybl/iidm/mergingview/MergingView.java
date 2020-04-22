@@ -399,7 +399,7 @@ public final class MergingView implements Network {
     @Override
     public Boolean setBooleanProperty(String key, Boolean value) {
         index.getNetworkStream().forEach(n -> n.setBooleanProperty(key, value));
-        return null;
+        return Boolean.TRUE;
     }
 
     @Override
