@@ -10,6 +10,7 @@ package com.powsybl.iidm.xml;
 import javax.xml.stream.XMLStreamException;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -33,66 +34,43 @@ public final class PropertiesXml {
         if (identifiable.hasStringProperty()) {
             for (String name : identifiable.getStringPropertyNames()) {
                 String value = identifiable.getStringProperty(name);
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
-                context.getWriter().writeAttribute(NAME, name);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-                    try {
-                        context.getWriter().writeAttribute(TYPE, TYPE_STRING);
-                    } catch (XMLStreamException e) {
-                        e.printStackTrace();
-                    }
-                });
-                context.getWriter().writeAttribute(VALUE, value);
+                writeProperty(name, TYPE_STRING, value, context);
             }
         }
         if (identifiable.hasIntegerProperty()) {
             for (String name : identifiable.getIntegerPropertyNames()) {
                 String value = identifiable.getIntegerProperty(name).toString();
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
-                context.getWriter().writeAttribute(NAME, name);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-                    try {
-                        context.getWriter().writeAttribute(TYPE, TYPE_INTEGER);
-                    } catch (XMLStreamException e) {
-                        e.printStackTrace();
-                    }
-                });
-                context.getWriter().writeAttribute(VALUE, value);
+                writeProperty(name, TYPE_INTEGER, value, context);
             }
         }
         if (identifiable.hasDoubleProperty()) {
             for (String name : identifiable.getDoublePropertyNames()) {
                 String value = identifiable.getDoubleProperty(name).toString();
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
-                context.getWriter().writeAttribute(NAME, name);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-                    try {
-                        context.getWriter().writeAttribute(TYPE, TYPE_DOUBLE);
-                    } catch (XMLStreamException e) {
-                        e.printStackTrace();
-                    }
-                });
-                context.getWriter().writeAttribute(VALUE, value);
+                writeProperty(name, TYPE_DOUBLE, value, context);
             }
         }
         if (identifiable.hasBooleanProperty()) {
             for (String name : identifiable.getBooleanPropertyNames()) {
                 String value = identifiable.getBooleanProperty(name).toString();
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
-                context.getWriter().writeAttribute(NAME, name);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-                    try {
-                        context.getWriter().writeAttribute(TYPE, TYPE_BOOLEAN);
-                    } catch (XMLStreamException e) {
-                        e.printStackTrace();
-                    }
-                });
-                context.getWriter().writeAttribute(VALUE, value);
+                writeProperty(name, TYPE_BOOLEAN, value, context);
             }
         }
     }
 
-    public static void read(Identifiable identifiable, NetworkXmlReaderContext context) {
+    private static void writeProperty(String name, String type, String value, NetworkXmlWriterContext context) throws XMLStreamException {
+        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
+        context.getWriter().writeAttribute(NAME, name);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            try {
+                context.getWriter().writeAttribute(TYPE, type);
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
+        context.getWriter().writeAttribute(VALUE, value);
+    }
+
+    public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) {
         assert context.getReader().getLocalName().equals(PROPERTY);
         String name = context.getReader().getAttributeValue(null, NAME);
         String type = context.getReader().getAttributeValue(null, TYPE);
