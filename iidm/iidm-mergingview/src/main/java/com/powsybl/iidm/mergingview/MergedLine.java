@@ -434,6 +434,8 @@ class MergedLine implements Line {
 
     @Override
     public String setStringProperty(String key, String value) {
+        dl1.setStringProperty(key, value);
+        dl2.setStringProperty(key, value);
         return properties.putString(key, value);
     }
 
@@ -469,6 +471,8 @@ class MergedLine implements Line {
 
     @Override
     public Integer setIntegerProperty(String key, Integer value) {
+        dl1.setIntegerProperty(key, value);
+        dl2.setIntegerProperty(key, value);
         return properties.putInteger(key, value);
     }
 
@@ -504,6 +508,8 @@ class MergedLine implements Line {
 
     @Override
     public Double setDoubleProperty(String key, Double value) {
+        dl1.setDoubleProperty(key, value);
+        dl2.setDoubleProperty(key, value);
         return properties.putDouble(key, value);
     }
 
@@ -539,6 +545,8 @@ class MergedLine implements Line {
 
     @Override
     public Boolean setBooleanProperty(String key, Boolean value) {
+        dl1.setBooleanProperty(key, value);
+        dl2.setBooleanProperty(key, value);
         return properties.putBoolean(key, value);
     }
 
