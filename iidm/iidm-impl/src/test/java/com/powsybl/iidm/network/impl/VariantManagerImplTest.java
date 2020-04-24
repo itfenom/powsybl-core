@@ -46,7 +46,12 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public String getName() {
+        public Optional<String> getOptionalName() {
+            return Optional.empty();
+        }
+
+        @Override
+        public String getNameOrId() {
             return id;
         }
 

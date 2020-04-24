@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -255,7 +254,7 @@ public class AmplNetworkWriter {
                         .writeCell(actionNum)
                         .writeCell(vl.getSubstation().getCountry().map(Enum::toString).orElse(""))
                         .writeCell(vl.getId())
-                        .writeCell(vl.getName());
+                        .writeCell(vl.getNameOrId());
                 addExtensions(num, vl);
             }
             // voltage level associated to 3 windings transformers middle bus
@@ -672,7 +671,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(l.getName());
+                        .writeCell(l.getNameOrId());
             }
             addExtensions(num, l);
         }
@@ -757,7 +756,7 @@ public class AmplNetworkWriter {
                     .writeCell(faultNum)
                     .writeCell(actionNum)
                     .writeCell(id)
-                    .writeCell(twt.getName());
+                    .writeCell(twt.getNameOrId());
             addExtensions(num, twt);
         }
     }
@@ -967,7 +966,7 @@ public class AmplNetworkWriter {
                     .writeCell(faultNum)
                     .writeCell(actionNum)
                     .writeCell(id)
-                    .writeCell(dl.getName());
+                    .writeCell(dl.getNameOrId());
             addExtensions(num, dl);
         }
     }
@@ -1237,7 +1236,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(l.getName())
+                        .writeCell(l.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
                 addExtensions(num, l);
@@ -1311,9 +1310,6 @@ public class AmplNetworkWriter {
                      new Column("sections count"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShuntCompensators()) {
-                if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
-                    throw new PowsyblException("Non linear shunt compensator not yet supported");
-                }
                 Terminal t = sc.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -1340,7 +1336,7 @@ public class AmplNetworkWriter {
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB;
                 double b1 = 0;
-                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection() * sc.getMaximumSectionCount() * zb;
+                double b2 = sc.getbPerSection() * sc.getMaximumSectionCount() * zb;
                 double minB = Math.min(b1, b2);
                 double maxB = Math.max(b1, b2);
                 double b = sc.getCurrentB() * zb;
@@ -1357,7 +1353,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(sc.getName())
+                        .writeCell(sc.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ())
                         .writeCell(sc.getCurrentSectionCount());
@@ -1422,7 +1418,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(svc.getName())
+                        .writeCell(svc.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
                 addExtensions(num, svc);
@@ -1513,7 +1509,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(g.getName())
+                        .writeCell(g.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
                 addExtensions(num, g);
@@ -1600,7 +1596,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(b.getName())
+                        .writeCell(b.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
                 addExtensions(num, b);
@@ -1728,7 +1724,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(hvdcLine.getName());
+                        .writeCell(hvdcLine.getNameOrId());
                 addExtensions(num, hvdcLine);
             }
         }
@@ -1789,7 +1785,7 @@ public class AmplNetworkWriter {
                             .writeCell(faultNum)
                             .writeCell(actionNum)
                             .writeCell(lccStation.getId())
-                            .writeCell(lccStation.getName())
+                            .writeCell(lccStation.getNameOrId())
                             .writeCell(t.getP())
                             .writeCell(t.getQ());
                     addExtensions(num, lccStation);
@@ -1867,7 +1863,7 @@ public class AmplNetworkWriter {
                             .writeCell(faultNum)
                             .writeCell(actionNum)
                             .writeCell(vscStation.getId())
-                            .writeCell(vscStation.getName())
+                            .writeCell(vscStation.getNameOrId())
                             .writeCell(t.getP())
                             .writeCell(t.getQ());
                     addExtensions(num, vscStation);

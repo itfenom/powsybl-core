@@ -35,8 +35,8 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public String getName() {
-        return getDelegate().getName();
+    public Optional<String> getOptionalName() {
+        return getDelegate().getOptionalName();
     }
 
     @Override
